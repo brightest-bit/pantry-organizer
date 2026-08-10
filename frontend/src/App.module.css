@@ -1,0 +1,125 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #2c5f2e;
+  color: white;
+  padding: 1.25rem 1.5rem;
+}
+
+.headerInner {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  font-size: 2rem;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+  margin-top: 0.15rem;
+}
+
+.main {
+  flex: 1;
+  max-width: 860px;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+  width: 100%;
+}
+
+.formCard {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c5f2e;
+  border-bottom: 2px solid #e8f0e8;
+  padding-bottom: 0.4rem;
+}
+
+.optional {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #888;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: -0.5rem;
+}
+
+.addShelfBtn {
+  align-self: flex-start;
+  background: none;
+  border: 2px dashed #2c5f2e;
+  color: #2c5f2e;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+.addShelfBtn:hover {
+  background: #eef5ee;
+}
+
+.submitBtn {
+  background: #2c5f2e;
+  color: white;
+  border: none;
+  padding: 0.85rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.15s;
+  align-self: flex-end;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: #1e4220;
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  background: #fff0f0;
+  border: 1px solid #f5c2c2;
+  color: #c0392b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}

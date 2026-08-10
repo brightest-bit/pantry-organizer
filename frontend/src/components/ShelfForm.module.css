@@ -1,0 +1,61 @@
+.shelf {
+  background: #f9faf9;
+  border: 1px solid #dde8dd;
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.shelfHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.shelfLabel {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c5f2e;
+}
+
+.removeBtn {
+  background: none;
+  border: 1px solid #e0c0c0;
+  color: #c0392b;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  transition: background 0.15s;
+}
+
+.removeBtn:hover {
+  background: #fff0f0;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.field input {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #cdd8cd;
+  border-radius: 6px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.field input:focus {
+  border-color: #2c5f2e;
+}

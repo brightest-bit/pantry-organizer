@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pantry Organizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { color: inherit; }
+button { cursor: pointer; font-family: inherit; }
+input, select { font-family: inherit; }
+
+/* ── GRAPH PAPER BACKGROUND ───────────────────────────── */
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #2a2a2a; min-height: 100vh; background-color: #f0ede6;
+  background-image:
+    linear-gradient(rgba(160,150,130,0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160,150,130,0.4) 1px, transparent 1px),
+    linear-gradient(rgba(160,150,130,0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(160,150,130,0.12) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+}
+
+/* ── HEADER ───────────────────────────────────────────── */
+header { background: #1c1c1c; color: #e8e4d8; border-bottom: 2px solid #333; }
+.header-inner { max-width: 860px; margin: 0 auto; padding: 0.85rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.header-left { display: flex; align-items: center; gap: 1rem; }
+.monogram { width: 38px; height: 38px; background: #e8e4d8; color: #1c1c1c; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
+.header-title { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+.header-sub { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #666; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.15rem; }
+.header-actions { display: flex; gap: 0.5rem; }
+.hdr-btn { background: transparent; border: 1px solid #444; color: #999; padding: 0.32rem 0.8rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 0.05em; transition: all 0.15s; }
+.hdr-btn:hover { border-color: #888; color: #e8e4d8; }
+.hdr-btn.saved-flash { border-color: #f0a500; color: #f0a500; }
+
+/* ── LAYOUT ───────────────────────────────────────────── */
+main { max-width: 860px; margin: 2rem auto; padding: 0 1.25rem; }
+
+/* ── CARDS ────────────────────────────────────────────── */
+.card { background: #faf8f3; border: 1px solid #d8d0c0; border-radius: 2px; padding: 1.5rem; margin-bottom: 1.1rem; }
+.card:last-child { margin-bottom: 0; }
+.section-title { font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #999; border-bottom: 1px dashed #c8c0b0; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+
+/* ── UNIT TOGGLE ──────────────────────────────────────── */
+.unit-row { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.unit-label { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #888; }
+.toggle-group { display: flex; border: 1px solid #c8c0b0; border-radius: 2px; overflow: hidden; }
+.toggle-group button { background: transparent; border: none; padding: 0.28rem 0.8rem; font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700; color: #888; transition: all 0.12s; }
+.toggle-group button.active { background: #1c1c1c; color: #e8e4d8; }
+.toggle-group button:first-child { border-right: 1px solid #c8c0b0; }
+.cm-hint { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #aaa; display: none; }
+
+/* ── PANTRY TYPE ──────────────────────────────────────── */
+.type-row { display: flex; gap: 0.6rem; margin-bottom: 1rem; }
+.type-btn { flex: 1; border: 1px solid #c8c0b0; background: transparent; border-radius: 2px; padding: 0.6rem 0.5rem; font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #888; transition: all 0.15s; text-align: center; text-transform: uppercase; letter-spacing: 0.06em; }
+.type-btn.active { border-color: #1c1c1c; background: #1c1c1c; color: #e8e4d8; }
+.room-dims { display: none; }
+.room-dims.visible { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed #c8c0b0; }
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field span, .field label { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+.field input, .field select { padding: 0.45rem 0.6rem; border: 1px solid #c8c0b0; border-radius: 2px; outline: none; width: 100%; background: white; font-size: 0.88rem; color: #1c1c1c; }
+.field input:focus, .field select:focus { border-color: #1c1c1c; }
+
+/* ── CUSTOM SHAPE ─────────────────────────────────────── */
+.custom-shape-toggle-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed #c8c0b0; }
+.custom-shape-toggle-row input[type=checkbox] { width: 14px; height: 14px; accent-color: #1c1c1c; cursor: pointer; flex-shrink: 0; }
+.custom-shape-toggle-row label { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #666; cursor: pointer; }
+.custom-shape-wizard.visible { display: block; margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed #c8c0b0; }
+.shape-step-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.shape-canvas-wrap { position: relative; border: 1px solid #d8d0c0; border-radius: 2px; background: #faf8f3; overflow: hidden; user-select: none; }
+.shape-canvas-label { position: absolute; top: 8px; left: 10px; z-index: 2; font-family: 'Space Mono', monospace; font-size: 0.56rem; color: #aaa; letter-spacing: 0.06em; text-transform: uppercase; background: rgba(250,248,243,0.92); padding: 0.16rem 0.42rem; border: 1px solid #d8d0c0; border-radius: 2px; max-width: 70%; line-height: 1.4; }
+.shape-wall-count { position: absolute; top: 8px; right: 10px; z-index: 2; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; color: #1c1c1c; background: rgba(250,248,243,0.92); padding: 0.16rem 0.5rem; border: 1px solid #d8d0c0; border-radius: 2px; }
+#shapeCanvas { display: block; width: 100%; height: 400px; cursor: crosshair; touch-action: none; }
+@media (max-width: 480px) { #shapeCanvas { height: 300px; } }
+.shape-controls-row { display: flex; gap: 0.5rem; margin-top: 0.65rem; flex-wrap: wrap; }
+.shape-btn { background: transparent; border: 1px dashed #c8c0b0; color: #666; padding: 0.4rem 0.9rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em; transition: all 0.15s; }
+.shape-btn:hover:not(:disabled) { border-color: #1c1c1c; color: #1c1c1c; }
+.shape-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.shape-btn.primary { background: #1c1c1c; color: #e8e4d8; border-style: solid; }
+.shape-btn.primary:hover:not(:disabled) { background: #333; }
+.shape-btn.danger { border-color: #e0c0c0; color: #c0392b; }
+.shape-btn.danger:hover:not(:disabled) { background: #fff0f0; border-color: #c0392b; }
+.wall-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.85rem; }
+.wall-row { background: white; border: 1px solid #d8d0c0; border-radius: 2px; padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.wall-row-top { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+.wall-color-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.15); }
+.wall-name-input { flex: 1; min-width: 90px; padding: 0.32rem 0.5rem; border: 1px solid #c8c0b0; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; color: #1c1c1c; background: white; }
+.wall-length-input { width: 72px; padding: 0.32rem 0.5rem; border: 1px solid #c8c0b0; border-radius: 2px; font-size: 0.82rem; text-align: center; }
+.wall-unit-label { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; }
+.wall-shelving-check { display: flex; align-items: center; gap: 0.4rem; }
+.wall-shelving-check input[type=checkbox] { width: 13px; height: 13px; accent-color: #1c1c1c; cursor: pointer; }
+.wall-shelving-check label { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #666; cursor: pointer; }
+.shelving-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 0.6rem; }
+.shape-hint { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #aaa; line-height: 1.5; margin: 0.5rem 0; }
+.shape-warning-flash { color: #c0392b !important; }
+
+/* ── SHELF BLOCKS ─────────────────────────────────────── */
+.shelf-block { background: white; border: 1px solid #d8d0c0; border-radius: 2px; padding: 1rem; margin-bottom: 0.75rem; }
+.shelf-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.shelf-hdr-label { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.78rem; color: #1c1c1c; }
+.remove-btn { background: none; border: 1px solid #e0c0c0; color: #c0392b; padding: 0.18rem 0.5rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.62rem; }
+.remove-btn:hover { background: #fff0f0; }
+.shelf-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 0.65rem; }
+.same-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.65rem; }
+.same-row input[type=checkbox] { width: 13px; height: 13px; accent-color: #1c1c1c; cursor: pointer; }
+.same-row label { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; cursor: pointer; user-select: none; }
+.copied-tag { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #888; background: #f0ede6; padding: 0.1rem 0.4rem; border: 1px solid #c8c0b0; border-radius: 2px; }
+.add-shelf-btn { background: none; border: 1px dashed #c8c0b0; color: #888; padding: 0.4rem 1rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; margin-top: 0.25rem; width: 100%; letter-spacing: 0.05em; transition: all 0.15s; }
+.add-shelf-btn:hover { border-color: #1c1c1c; color: #1c1c1c; }
+
+/* ── FILTERS ──────────────────────────────────────────── */
+.filter-label { font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.45rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+.chip { padding: 0.22rem 0.62rem; border: 1px solid #c8c0b0; border-radius: 2px; background: white; font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #666; transition: all 0.12s; }
+.chip:hover { border-color: #1c1c1c; color: #1c1c1c; }
+.chip.active { background: #1c1c1c; border-color: #1c1c1c; color: #e8e4d8; }
+.clear-link { background: none; border: none; color: #aaa; font-family: 'Space Mono', monospace; font-size: 0.62rem; text-decoration: underline; padding: 0; display: none; margin-bottom: 0.85rem; }
+.price-row { display: flex; align-items: flex-end; gap: 0.6rem; }
+.price-field { display: flex; flex-direction: column; gap: 0.28rem; }
+.price-field span { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+.price-field input { width: 110px; padding: 0.42rem 0.6rem; border: 1px solid #c8c0b0; border-radius: 2px; outline: none; font-size: 0.88rem; background: white; }
+.price-field input:focus { border-color: #1c1c1c; }
+
+/* ── FORM ACTIONS ─────────────────────────────────────── */
+.form-actions { display: flex; justify-content: flex-end; gap: 0.7rem; margin-top: 0.5rem; }
+.submit-btn { background: #1c1c1c; color: #e8e4d8; border: none; padding: 0.7rem 1.8rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.15s; }
+.submit-btn:hover { background: #333; }
+.error-msg { background: #fff0f0; border: 1px solid #e0c0c0; color: #c0392b; padding: 0.6rem 0.9rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.68rem; margin-top: 0.65rem; display: none; }
+</style>
+
+<style>
+/* ── RESULTS ──────────────────────────────────────────── */
+#results { display: none; }
+.results-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; }
+.results-title { font-size: 1.5rem; font-weight: 700; color: #1c1c1c; letter-spacing: -0.02em; }
+.results-meta { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; margin-top: 0.3rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.results-meta .hi { color: #f0a500; }
+.affiliate-note { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #aaa; margin-top: 0.75rem; padding-top: 0.6rem; border-top: 1px dashed #c8c0b0; }
+.results-actions { display: flex; gap: 0.5rem; }
+.reset-btn, .edit-btn { background: transparent; border: 1px solid #c8c0b0; color: #666; padding: 0.35rem 0.82rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; transition: all 0.15s; }
+.reset-btn:hover, .edit-btn:hover { border-color: #1c1c1c; color: #1c1c1c; }
+
+/* ── 3D VIEWER ────────────────────────────────────────── */
+.viewer-wrap { position: relative; border: 1px solid #d8d0c0; border-radius: 2px; background: #faf8f3; margin-bottom: 1.1rem; user-select: none; overflow: hidden; }
+.viewer-label { position: absolute; top: 10px; left: 12px; font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #aaa; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(250,248,243,0.92); padding: 0.18rem 0.48rem; border: 1px solid #d8d0c0; border-radius: 2px; }
+#pantryCanvas { display: block; width: 100%; cursor: grab; }
+#pantryCanvas:active { cursor: grabbing; }
+.rotate-hint { position: absolute; bottom: 10px; right: 12px; font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #aaa; letter-spacing: 0.06em; opacity: 1; transition: opacity 0.6s; background: rgba(250,248,243,0.92); padding: 0.18rem 0.5rem; border: 1px solid #d8d0c0; border-radius: 2px; }
+.rotate-hint.fade { opacity: 0; }
+.arrow-l, .arrow-r { display: inline-block; animation: nudge 2s ease-in-out infinite; }
+.arrow-r { animation-delay: 0.15s; }
+.arrow-hint { display: inline-block; animation: nudge 2s ease-in-out infinite; }
+@keyframes nudge { 0%,100%{transform:translateX(0)} 45%{transform:translateX(-3px)} 55%{transform:translateX(3px)} }
+
+/* ── SHELF LEGEND ─────────────────────────────────────── */
+.shelf-legend { border-top: 1px solid #d8d0c0; }
+.legend-row { display: flex; justify-content: space-between; align-items: center; padding: 0.42rem 1rem; border-bottom: 1px dashed #e8e0d0; font-family: 'Space Mono', monospace; font-size: 0.65rem; }
+.legend-row:last-child { border-bottom: none; }
+.legend-shelf { color: #1c1c1c; font-weight: 700; }
+.legend-shelf span { font-weight: 400; color: #888; }
+.legend-qty { color: #bbb; font-size: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+.drag-tag { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #bbb; border: 1px solid #d8d0c0; padding: 0.12rem 0.45rem; border-radius: 2px; }
+.legend-clear-btn { background: none; border: 1px solid #e0c0c0; color: #c0392b; padding: 0.08rem 0.4rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; cursor: pointer; }
+.legend-clear-btn:hover { background: #fff0f0; }
+.overlap-warning { display: none; background: #fff0f0; border-top: 1px solid #e0c0c0; color: #c0392b; font-family: 'Space Mono', monospace; font-size: 0.62rem; padding: 0.5rem 1rem; }
+.overlap-warning.show { display: block; }
+
+/* ── SHELF RESULT SECTIONS ────────────────────────────── */
+.shelf-section { background: #faf8f3; border: 1px solid #d8d0c0; border-radius: 2px; padding: 1.4rem; margin-bottom: 1rem; }
+.shelf-res-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.85rem; }
+.shelf-res-title { font-size: 1.05rem; font-weight: 700; color: #1c1c1c; }
+.shelf-res-dims { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #888; margin-top: 0.28rem; }
+.shelf-res-dims .hi { color: #f0a500; }
+.match-pill { font-family: 'Space Mono', monospace; font-size: 0.62rem; font-weight: 700; color: #1c1c1c; background: #e8e4d8; border: 1px solid #c8c0b0; padding: 0.18rem 0.55rem; border-radius: 2px; }
+.no-matches { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #aaa; padding: 0.9rem; text-align: center; }
+
+/* ── PRODUCT CARDS ────────────────────────────────────── */
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.85rem; }
+.card-wrap { position: relative; }
+.top-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: #f0a500; color: white; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; padding: 0.16rem 0.48rem; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+.product-card { border: 1px solid #d8d0c0; border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.15s; height: 100%; cursor: pointer; background: white; }
+.product-card:hover { border-color: #888; }
+.product-card.selected { border: 2px solid #1c1c1c; }
+.selected-ribbon { display: none; background: #1c1c1c; color: #e8e4d8; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; text-align: center; padding: 0.18rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.product-card.selected .selected-ribbon { display: block; }
+.prod-img { width: 100%; height: 140px; object-fit: cover; background: #eeeae0; display: block; }
+.prod-img-area { width: 100%; height: 140px; background: #eeeae0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #d8d0c0; font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #aaa; text-align: center; padding: 0.5rem; }
+.prod-body { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.38rem; flex: 1; }
+.cat-badge { font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; color: #888; background: #f0ede6; border: 1px solid #d8d0c0; padding: 0.1rem 0.42rem; border-radius: 2px; align-self: flex-start; text-transform: uppercase; letter-spacing: 0.05em; }
+.prod-name { font-size: 0.92rem; font-weight: 700; color: #1c1c1c; line-height: 1.3; }
+.prod-desc { font-size: 0.77rem; color: #777; line-height: 1.45; }
+.dim-row { display: flex; gap: 0.28rem; flex-wrap: wrap; }
+.dim-tag { font-family: 'Space Mono', monospace; font-size: 0.62rem; background: #f0ede6; border: 1px solid #d8d0c0; padding: 0.08rem 0.35rem; border-radius: 2px; color: #555; }
+.fit-row { display: flex; gap: 0.28rem; flex-wrap: wrap; }
+.fit-pill { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #999; border: 1px dashed #c8c0b0; padding: 0.08rem 0.35rem; border-radius: 2px; }
+.prod-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 0.45rem; border-top: 1px solid #ece8e0; }
+.prod-price { font-family: 'Space Mono', monospace; font-size: 0.88rem; font-weight: 700; color: #1c1c1c; }
+.buy-btn { background: #f0a500; color: white; text-decoration: none; padding: 0.28rem 0.62rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.04em; white-space: nowrap; }
+.buy-btn:hover { background: #d49000; }
+.select-hint { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #bbb; text-align: center; margin-top: 0.6rem; }
+.show-more-row { display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+.show-more-btn { background: transparent; border: 1px dashed #c8c0b0; color: #666; padding: 0.4rem 1rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em; transition: all 0.15s; }
+.show-more-btn:hover { border-color: #1c1c1c; color: #1c1c1c; }
+
+/* ── POSITION SLIDERS ─────────────────────────────────── */
+.pos-sliders { margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px dashed #d8d0c0; display: flex; flex-direction: column; gap: 0.4rem; }
+.slider-row-top { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
+.qty-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #888; display: flex; align-items: center; gap: 0.25rem; }
+.sl-add-btn { background: #3a6b3c; color: white; border: none; padding: 0.22rem 0.5rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.58rem; font-weight: 700; cursor: pointer; }
+.sl-add-btn:hover { background: #2c5a2e; }
+.sl-add-btn:disabled { background: #b8b8b8; cursor: not-allowed; }
+.del-btn { background: none; border: 1px solid #e0c0c0; color: #c0392b; padding: 0.18rem 0.45rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.58rem; cursor: pointer; }
+.del-btn:hover { background: #fff0f0; }
+.slider-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: #888; display: flex; flex-direction: column; gap: 0.2rem; }
+.slider-label input[type=range] { width: 100%; height: 6px; accent-color: #1c1c1c; cursor: pointer; }
+.instance-hint { font-family: 'Space Mono', monospace; font-size: 0.56rem; color: #aaa; line-height: 1.4; margin-bottom: 0.1rem; }
+.instance-block { background: #f5f2ea; border: 1px solid #e0d8c8; border-radius: 2px; padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.35rem; }
+.instance-block-hdr { display: flex; justify-content: space-between; align-items: center; }
+.instance-tag { font-family: 'Space Mono', monospace; font-size: 0.6rem; font-weight: 700; color: #1c1c1c; }
+.instance-del-btn { background: none; border: 1px solid #e0c0c0; color: #c0392b; width: 18px; height: 18px; line-height: 1; border-radius: 2px; font-size: 0.6rem; cursor: pointer; }
+.instance-del-btn:hover { background: #fff0f0; }
+
+/* ── SHOPPING LIST ────────────────────────────────────── */
+.sl-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px dashed #e8e0d0; }
+.sl-row:last-of-type { border-bottom: none; }
+.sl-name { flex: 1; font-size: 0.82rem; font-weight: 600; color: #1c1c1c; }
+.sl-shelf { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: #aaa; margin-left: 0.3rem; }
+.sl-qty { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: #888; }
+.sl-price { font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #1c1c1c; min-width: 55px; text-align: right; }
+.sl-remove { background: none; border: 1px solid #e0c0c0; color: #c0392b; width: 22px; height: 22px; border-radius: 2px; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.sl-remove:hover { background: #fff0f0; }
+.sl-total { display: flex; justify-content: space-between; align-items: center; padding-top: 0.65rem; margin-top: 0.5rem; border-top: 1px solid #c8c0b0; font-family: 'Space Mono', monospace; font-size: 0.78rem; font-weight: 700; color: #1c1c1c; }
+.sl-clear { background: none; border: 1px solid #c8c0b0; color: #888; padding: 0.25rem 0.6rem; border-radius: 2px; font-family: 'Space Mono', monospace; font-size: 0.6rem; cursor: pointer; }
+.sl-clear:hover { border-color: #c0392b; color: #c0392b; }
+
+/* ── SAVED ITEMS FLOATING PANEL ───────────────────────── */
+.saved-panel {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 860px;
+  background: #faf8f3; border: 1px solid #c8c0b0; border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+.saved-panel.collapsed .saved-panel-body { display: none; }
+.saved-panel.collapsed { border-radius: 8px 8px 0 0; }
+.saved-panel-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.7rem 1.2rem; cursor: pointer;
+  border-bottom: 1px solid #e8e0d0;
+  user-select: none;
+}
+.saved-panel-header:hover { background: #f5f2ea; }
+.saved-panel-title { font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; color: #1c1c1c; }
+.saved-count { background: #f0a500; color: white; font-size: 0.6rem; padding: 0.12rem 0.4rem; border-radius: 99px; margin-left: 0.4rem; }
+.saved-toggle { font-size: 0.7rem; color: #888; transition: transform 0.3s; }
+.saved-panel.collapsed .saved-toggle { transform: rotate(180deg); }
+.saved-panel-body { max-height: 280px; overflow-y: auto; padding: 0.75rem 1.2rem; }
+.saved-empty { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: #aaa; text-align: center; padding: 1rem 0; }
+.sl-link { font-family: 'Space Mono', monospace; font-size: 0.58rem; background: #f0a500; color: white; text-decoration: none; padding: 0.15rem 0.4rem; border-radius: 2px; margin-left: 0.4rem; white-space: nowrap; }
+.sl-link:hover { background: #d49000; }
+
+/* give main content some bottom padding so the panel doesn't overlap */
+main { padding-bottom: 80px; }
+
+/* ── PACKING PREFERENCE ──────────────────────────────── */
+.pref-section-num { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #aaa; margin-right: 0.5rem; }
+.pref-optional { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #aaa; font-weight: 400; margin-left: 0.4rem; }
+.pref-question { font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+.pref-hint { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: #3a6b3c; margin-bottom: 0.75rem; }
+.pref-input-wrap { margin-bottom: 1.25rem; }
+.pref-bins-input { width: 120px; padding: 0.45rem 0.65rem; border: 1px solid #c8c0b0; border-radius: 2px; outline: none; font-size: 0.9rem; background: white; color: #1c1c1c; }
+.pref-bins-input:focus { border-color: #1c1c1c; }
+.fill-toggle { display: flex; border: 1px solid #c8c0b0; border-radius: 2px; overflow: hidden; width: 100%; }
+.fill-btn { flex: 1; background: transparent; border: none; border-right: 1px solid #c8c0b0; padding: 0.5rem 0.75rem; font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; color: #888; transition: all 0.12s; text-align: center; }
+.fill-btn:last-child { border-right: none; }
+.fill-btn.active { background: #2c4a2e; color: #e8e4d8; }
+.fill-btn:hover:not(.active) { background: #f0ede6; color: #444; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="monogram">P·O</div>
+      <div>
+        <div class="header-title">Pantry Organizer</div>
+        <div class="header-sub">Measure your shelves — See what fits — Shop the result</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="hdr-btn" id="save-btn" onclick="saveSession()">Save</button>
+      <button class="hdr-btn" id="load-btn" onclick="loadSession()" style="display:none">Load Saved</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ══ FORM VIEW ══════════════════════════════════════ -->
+  <div id="form-view">
+
+    <!-- Pantry Type -->
+    <div class="card">
+      <h2 class="section-title">Pantry Type</h2>
+      <div class="type-row">
+        <button class="type-btn active" id="type-standard" onclick="setPantryType('standard')">🚪 Standard Pantry</button>
+        <button class="type-btn" id="type-walkin" onclick="setPantryType('walkin')">🚶 Walk-In Pantry</button>
+      </div>
+      <div class="room-dims" id="room-dims">
+        <div class="field" id="room-width-field"><span>Room Width (<span class="u">in</span>)</span><input type="number" id="room-width" min="1" step="0.5" placeholder="e.g. 60" /></div>
+        <div class="field" id="room-depth-field"><span>Room Depth (<span class="u">in</span>)</span><input type="number" id="room-depth" min="1" step="0.5" placeholder="e.g. 72" /></div>
+        <div class="field"><span>Ceiling Height (<span class="u">in</span>)</span><input type="number" id="room-height" min="1" step="0.5" placeholder="e.g. 96" /></div>
+        <div class="field"><span>Door Width (<span class="u">in</span>)</span><input type="number" id="door-width" min="1" step="0.5" placeholder="e.g. 32" /></div>
+      </div>
+      <div class="custom-shape-toggle-row" id="custom-shape-toggle-row" style="display:none">
+        <input type="checkbox" id="custom-shape-check" onchange="toggleCustomShape(this.checked)" />
+        <label for="custom-shape-check">My pantry has a non-standard shape (L-shaped, angled walls, nooks, etc.)</label>
+      </div>
+      <div id="custom-shape-wizard" class="custom-shape-wizard" style="display:none"></div>
+    </div>
+
+    <!-- Shelf Measurements -->
+    <div class="card" id="shelf-measurements-card">
+      <h2 class="section-title">Shelf Measurements</h2>
+      <div class="unit-row">
+        <span class="unit-label">Unit:</span>
+        <div class="toggle-group">
+          <button id="btn-in" class="active" onclick="setUnit('in')">in</button>
+          <button id="btn-cm" onclick="setUnit('cm')">cm</button>
+        </div>
+        <span class="cm-hint" id="cm-hint">Inputs in cm — converted to inches for matching</span>
+      </div>
+      <div id="shelves-container"></div>
+      <button type="button" class="add-shelf-btn" onclick="addShelf()">+ Add Another Shelf</button>
+    </div>
+
+    <!-- Packing Preference -->
+    <div class="card">
+      <h2 class="section-title">
+        Packing Preference
+        <span class="pref-optional">— optional</span>
+      </h2>
+
+      <div class="pref-input-wrap">
+        <p class="pref-question">How many bins would you like per shelf?</p>
+        <p class="pref-hint">Leave blank if you don't have a target — we'll just optimize for the best dimensional fit.</p>
+        <p class="filter-label" style="margin-bottom:0.35rem">Bins</p>
+        <input class="pref-bins-input" type="number" id="pref-bins" min="1" step="1" placeholder="Any" />
+      </div>
+
+      <p class="pref-question">Should organizers fill the shelf completely, or leave some breathing room?</p>
+      <div class="fill-toggle" style="margin-top:0.5rem">
+        <button class="fill-btn active" id="fill-none"  onclick="setFill('none')">No preference</button>
+        <button class="fill-btn"        id="fill-full"  onclick="setFill('full')">Fill it up</button>
+        <button class="fill-btn"        id="fill-space" onclick="setFill('space')">Leave space</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+      <h2 class="section-title">Filters <span style="font-size:0.78rem;font-weight:400;color:#aaa">(optional)</span></h2>
+      <p class="filter-label">Product Categories</p>
+      <div class="chips" id="cat-chips"></div>
+      <button class="clear-link" id="clear-cats" onclick="clearCats()">Clear all</button>
+      <p class="filter-label">Max Price</p>
+      <div class="price-row">
+        <label class="price-field"><span>Max $</span><input type="number" id="max-price" min="0" step="1" placeholder="Any" /></label>
+      </div>
+    </div>
+
+    <p class="error-msg" id="error-msg"></p>
+    <div class="form-actions">
+      <button class="submit-btn" onclick="findOrganizers()">Find Organizers →</button>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS VIEW ═══════════════════════════════════ -->
+  <div id="results">
+    <div class="card">
+      <div class="results-top">
+        <div>
+          <p class="results-title">Your Recommendations</p>
+          <p class="results-meta" id="results-sub"></p>
+          <p class="affiliate-note">As an Amazon Associate, this site earns from qualifying purchases made through the links below.</p>
+        </div>
+        <div class="results-actions">
+          <button class="edit-btn" onclick="clearAllSelections()">✕ Clear Selections</button>
+          <button class="edit-btn" onclick="editForm()">Edit Inputs</button>
+          <button class="reset-btn" onclick="resetForm()">← Start Over</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D Viewer -->
+    <div class="viewer-wrap" id="viewer-wrap">
+      <div class="viewer-label">3D — Your Pantry, Stacked</div>
+      <canvas id="pantryCanvas" height="420"></canvas>
+      <div class="rotate-hint" id="rotate-hint">
+        <span class="arrow-l">◀</span>&nbsp;drag to rotate · use sliders below to position&nbsp;<span class="arrow-r">▶</span>
+      </div>
+      <div class="shelf-legend" id="shelf-legend"></div>
+      <div class="overlap-warning" id="overlap-warning">⚠ Red means something overlaps or doesn't fit — either a product (adjust its position sliders or remove it) or a shelf board colliding with another wall's shelving (go back to Edit Inputs → Shelving and reduce Width Override/Shelf Depth or add a Start Offset).</div>
+    </div>
+
+    <div id="shelf-results"></div>
+  </div>
+</main>
+
+<!-- ══ SAVED ITEMS PANEL (floating, always accessible) ══ -->
+<div class="saved-panel" id="saved-panel">
+  <div class="saved-panel-header" onclick="toggleSavedPanel()">
+    <span class="saved-panel-title">🛒 Saved Items <span class="saved-count" id="saved-count">0</span></span>
+    <span class="saved-toggle" id="saved-toggle">▲</span>
+  </div>
+  <div class="saved-panel-body" id="saved-panel-body">
+    <div id="shopping-list-body">
+      <p class="saved-empty">No items saved yet. Select products and click "+ Add to List" to save them here.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ PRODUCT CATALOG ═══════════════════════════════════ */
+const CATEGORIES = [
+  { slug:'clear_plastic_bins',   label:'Clear Plastic Bins' },
+  { slug:'open_front_bins',      label:'Open-Front Bins' },
+  { slug:'deep_shelf_bins',      label:'Deep Shelf Bins' },
+  { slug:'wire_natural_baskets', label:'Wire & Natural Baskets' },
+  { slug:'turntables',           label:'Turntables / Lazy Susans' },
+  { slug:'can_risers',           label:'Can Risers' },
+  { slug:'grain_dispensers',     label:'Grain & Cereal Dispensers' },
+  { slug:'pop_lid_containers',   label:'Pop-Lid Containers' },
+  { slug:'drawer_organizers',    label:'Drawer Organizers' },
+  { slug:'shelf_risers',         label:'Shelf Risers' },
+];
+
+const PRODUCTS = [
+  {id:'001',name:'Clear Stackable Bin - Small',      category:'clear_plastic_bins',   price:8.99,  color:'#cce8ff', dimensions:{width:6,   depth:8,   height:4  }, description:'Small clear stackable bin for snacks, spices, or packets.'},
+  {id:'002',name:'Clear Stackable Bin - Medium',     category:'clear_plastic_bins',   price:12.99, color:'#b0d8ff', dimensions:{width:9,   depth:12,  height:5  }, description:'Medium clear bin for canned goods, pasta, or snack bags.'},
+  {id:'003',name:'Clear Stackable Bin - Large',      category:'clear_plastic_bins',   price:16.99, color:'#90c4ff', dimensions:{width:12,  depth:16,  height:6  }, description:'Large clear bin for cereal boxes or baking supplies.'},
+  {id:'004',name:'Open-Front Bin - Small',           category:'open_front_bins',      price:7.49,  color:'#ffd6b0', dimensions:{width:6.5, depth:9,   height:5  }, description:'Open-front bin for easy grab access.'},
+  {id:'005',name:'Open-Front Bin - Medium',          category:'open_front_bins',      price:10.49, color:'#ffc090', dimensions:{width:10,  depth:13,  height:6.5}, description:'Medium open-front bin with label slot.'},
+  {id:'006',name:'Open-Front Bin - Large',           category:'open_front_bins',      price:14.99, color:'#ffaa70', dimensions:{width:14,  depth:16,  height:8  }, description:'Large open-front bin for tall bottles or bulk items.'},
+  {id:'007',name:'Deep Shelf Storage Bin',           category:'deep_shelf_bins',      price:18.99, color:'#d4e8c2', dimensions:{width:11,  depth:20,  height:7  }, description:'Extra deep bin for deep pantry shelves.'},
+  {id:'008',name:'Pull-Out Deep Cabinet Organizer',  category:'deep_shelf_bins',      price:24.99, color:'#b8d8a0', dimensions:{width:13,  depth:22,  height:5.5}, description:'Sliding pull-out organizer for deep shelves.'},
+  {id:'009',name:'Woven Seagrass Basket - Small',    category:'wire_natural_baskets', price:14.99, color:'#e8d4a0', dimensions:{width:8,   depth:10,  height:5  }, description:'Natural seagrass woven basket, stylish and functional.'},
+  {id:'010',name:'Woven Seagrass Basket - Large',    category:'wire_natural_baskets', price:22.99, color:'#d8c080', dimensions:{width:13,  depth:17,  height:7  }, description:'Large natural basket for bread, produce, or snacks.'},
+  {id:'011',name:'Wire Mesh Basket - Medium',        category:'wire_natural_baskets', price:16.49, color:'#c8d4c8', dimensions:{width:10,  depth:14,  height:6  }, description:'Metal wire basket with ventilation for produce.'},
+  {id:'012',name:'Lazy Susan - 10 inch',             category:'turntables',           price:11.99, color:'#f0e0f0', shape:'cylinder', dimensions:{width:10,  depth:10,  height:2  }, description:'10-inch spinning turntable for spices or oils.'},
+  {id:'013',name:'Lazy Susan - 12 inch',             category:'turntables',           price:14.99, color:'#e0c8e8', shape:'cylinder', dimensions:{width:12,  depth:12,  height:2.5}, description:'12-inch turntable with raised edge.'},
+  {id:'014',name:'Two-Tier Lazy Susan - 12 inch',    category:'turntables',           price:21.99, color:'#d0b0e0', shape:'cylinder', dimensions:{width:12,  depth:12,  height:9.5}, description:'Two-tier spinning organizer for spices.'},
+  {id:'015',name:'Can Riser - 2 Tier',               category:'can_risers',           price:13.49, color:'#ffe0c0', dimensions:{width:14,  depth:10,  height:6.5}, description:'2-tier stepped riser for canned goods.'},
+  {id:'016',name:'Can Riser - 3 Tier',               category:'can_risers',           price:17.99, color:'#ffd0a0', dimensions:{width:14,  depth:13.5,height:8  }, description:'3-tier riser, maximizes vertical space.'},
+  {id:'017',name:'Grain Dispenser - 3.4L',           category:'grain_dispensers',     price:15.99, color:'#e0f0e0', shape:'cylinder', dimensions:{width:4.5, depth:4.5, height:10.5}, description:'Airtight dispenser for cereal, rice, or oats.'},
+  {id:'018',name:'Grain Dispenser - 5.5L',           category:'grain_dispensers',     price:21.49, color:'#c8e8c8', shape:'cylinder', dimensions:{width:5.5, depth:5.5, height:13  }, description:'Large airtight dispenser for bulk grains or flour.'},
+  {id:'019',name:'Pop-Lid Container - 1.3L',         category:'pop_lid_containers',   price:9.99,  color:'#ffeedd', shape:'cylinder', dimensions:{width:4,   depth:4,   height:6.5 }, description:'Airtight pop-top container for sugar or spices.'},
+  {id:'020',name:'Pop-Lid Container - 2.5L',         category:'pop_lid_containers',   price:13.99, color:'#ffddc8', shape:'cylinder', dimensions:{width:5,   depth:5,   height:9   }, description:'Medium airtight container for flour or rice.'},
+  {id:'021',name:'Pop-Lid Container - 4.2L',         category:'pop_lid_containers',   price:17.99, color:'#ffcdb0', shape:'cylinder', dimensions:{width:6,   depth:6,   height:11  }, description:'Large pop-lid container for bulk flour or coffee.'},
+  {id:'022',name:'Drawer Organizer - Small',         category:'drawer_organizers',    price:8.99,  color:'#e8e8f8', dimensions:{width:5.5, depth:10,  height:2.5 }, description:'Slim drawer organizer for packets and seasoning.'},
+  {id:'023',name:'Expandable Drawer Organizer',      category:'drawer_organizers',    price:19.99, color:'#d8d8f0', dimensions:{width:17.5,depth:12,  height:2.5 }, description:'Adjustable organizer tray, 10" to 17.5" wide.'},
+  {id:'024',name:'Wire Shelf Riser',                 category:'shelf_risers',         price:22.49, color:'#e0e8d8', dimensions:{width:15,  depth:10,  height:6   }, description:'Wire shelf riser creates an extra storage level.'},
+  {id:'025',name:'Bamboo Shelf Riser - Wide',        category:'shelf_risers',         price:27.99, color:'#d4c8a8', dimensions:{width:18,  depth:11,  height:5.5 }, description:'Solid bamboo riser for two levels of storage.'},
+];
+</script>
+
+<script>
+/* ══ STATE ═════════════════════════════════════════════ */
+let shelves = [{width:'',depth:'',height:'',lip_height:'',sameDims:false}];
+let selectedCats = [];
+let unit = 'in';
+let pantryType = 'standard';
+let fillPref = 'none'; // 'none' | 'full' | 'space'
+// selectedProducts[shelfIdx] = [{uid, id, x:0-1, z:0-1}] — one entry per physical unit placed,
+// so multiple units of the same product are independent, individually-positioned instances
+let selectedProducts = [[]];
+let uidCounter = 1;
+function nextUid() { return 'u' + (uidCounter++); }
+// Shopping list — persists across edits: [{id, name, price, qty, shelfNumber}]
+let shoppingList = JSON.parse(localStorage.getItem('pantryShoppingList') || '[]');
+// Last computed shelf results for 3D
+let lastShelfResults = [];
+// How many candidate options are currently shown per shelf ("Show More/Less Options" adjusts this)
+const RESULTS_PAGE_SIZE = 3;
+let shelfVisibleCounts = [];
+
+// Custom (non-rectangular) pantry shape — Walk-In Pantry > "non-standard shape" checkbox
+let customShape = {
+  active: false,          // checkbox state
+  step: 'draw',           // 'draw' | 'measure' | 'door' | 'shelving'
+  vertices: [],            // [{x,y}] canvas px while drawing
+  closed: false,
+  walls: [],               // wall i connects vertices[i] -> vertices[(i+1)%n]; see buildWallsFromVertices()
+  doorWallId: null,
+  doorOffsetIn: null,      // distance from the wall's start vertex to the door center, in inches
+};
+// Snapshot of the room shape actually used for the last computed results (null = simple/rect mode) —
+// drawPantry() checks this to decide whether to render the custom room instead of the stacked-shelf view.
+let lastRoomShape = null;
+
+const CM = 0.393701; // cm to inches
+
+function toIn(v) {
+  const n = parseFloat(v);
+  return isNaN(n) ? NaN : (unit === 'cm' ? n * CM : n);
+}
+function dispVal(inches) {
+  if (unit === 'cm') return Math.round(inches / CM * 10) / 10;
+  return Math.round(inches * 4) / 4;
+}
+
+/* ══ INIT ══════════════════════════════════════════════ */
+function init() {
+  // One-time cleanup: remove any stale selectedProducts from old saved sessions
+  try {
+    const raw = localStorage.getItem('pantrySession');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d.selectedProducts) {
+        delete d.selectedProducts;
+        localStorage.setItem('pantrySession', JSON.stringify(d));
+      }
+    }
+  } catch(e) {}
+  checkSavedSession();
+  renderCats();
+  renderShelves();
+  updateUnitLabels();
+  renderShoppingList();
+}
+
+/* ══ SAVE / LOAD ════════════════════════════════════════ */
+function saveSession() {
+  const data = {
+    shelves, selectedCats, unit, pantryType, fillPref,
+    targetBins: document.getElementById('pref-bins').value,
+    maxPrice: document.getElementById('max-price').value,
+    roomWidth: document.getElementById('room-width').value,
+    roomDepth: document.getElementById('room-depth').value,
+    roomHeight: document.getElementById('room-height').value,
+    doorWidth: document.getElementById('door-width').value,
+    customShape,
+  };
+  localStorage.setItem('pantrySession', JSON.stringify(data));
+  const btn = document.getElementById('save-btn');
+  btn.classList.add('saved-flash');
+  btn.textContent = '✓ Saved';
+  setTimeout(() => { btn.classList.remove('saved-flash'); btn.textContent = '💾 Save'; }, 1800);
+}
+
+function checkSavedSession() {
+  if (localStorage.getItem('pantrySession')) {
+    document.getElementById('load-btn').style.display = 'inline-block';
+  }
+}
+
+function loadSession() {
+  const raw = localStorage.getItem('pantrySession');
+  if (!raw) return;
+  const d = JSON.parse(raw);
+  shelves = d.shelves || shelves;
+  selectedCats = d.selectedCats || [];
+  unit = d.unit || 'in';
+  pantryType = d.pantryType || 'standard';
+  selectedProducts = shelves.map(() => []);
+  fillPref = d.fillPref || 'none';
+  setFill(fillPref);
+  document.getElementById('pref-bins').value = d.targetBins || '';
+  document.getElementById('max-price').value = d.maxPrice || '';
+  document.getElementById('room-width').value = d.roomWidth || '';
+  document.getElementById('room-depth').value = d.roomDepth || '';
+  document.getElementById('room-height').value = d.roomHeight || '';
+  document.getElementById('door-width').value = d.doorWidth || '';
+  customShape = d.customShape || customShape;
+  lastRoomShape = null;
+  setPantryType(pantryType, true);
+  setUnit(unit, true);
+  renderCats();
+  renderShelves();
+  const btn = document.getElementById('load-btn');
+  btn.textContent = '✓ Loaded';
+  setTimeout(() => { btn.textContent = '📂 Load Saved'; }, 1500);
+}
+
+/* ══ FILL PREFERENCE ════════════════════════════════════ */
+function setFill(pref) {
+  fillPref = pref;
+  ['none','full','space'].forEach(p => {
+    document.getElementById('fill-'+p).classList.toggle('active', p === pref);
+  });
+}
+
+function setPantryType(type, silent) {
+  pantryType = type;
+  document.getElementById('type-standard').classList.toggle('active', type === 'standard');
+  document.getElementById('type-walkin').classList.toggle('active', type === 'walkin');
+  const rd = document.getElementById('room-dims');
+  rd.classList.toggle('visible', type === 'walkin');
+  document.getElementById('custom-shape-toggle-row').style.display = type === 'walkin' ? 'flex' : 'none';
+  updateCustomShapeUI();
+  if (!silent) saveSession();
+}
+
+/* ══ UNIT TOGGLE ════════════════════════════════════════ */
+function setUnit(u, silent) {
+  unit = u;
+  document.getElementById('btn-in').classList.toggle('active', u === 'in');
+  document.getElementById('btn-cm').classList.toggle('active', u === 'cm');
+  document.getElementById('cm-hint').style.display = u === 'cm' ? 'inline' : 'none';
+  updateUnitLabels();
+  renderShelves();
+  if (!silent) saveSession();
+}
+
+function updateUnitLabels() {
+  document.querySelectorAll('.u').forEach(el => el.textContent = unit);
+  const step = unit === 'cm' ? '0.5' : '0.25';
+  ['room-width','room-depth','room-height','door-width'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.step = step;
+  });
+}
+
+/* ══ CATEGORY CHIPS ════════════════════════════════════ */
+function renderCats() {
+  document.getElementById('cat-chips').innerHTML = CATEGORIES.map(c =>
+    `<button type="button" class="chip ${selectedCats.includes(c.slug)?'active':''}"
+      onclick="toggleCat('${c.slug}')">${c.label}</button>`
+  ).join('');
+  document.getElementById('clear-cats').style.display = selectedCats.length ? 'inline' : 'none';
+}
+function toggleCat(slug) {
+  selectedCats = selectedCats.includes(slug) ? selectedCats.filter(s=>s!==slug) : [...selectedCats,slug];
+  renderCats();
+}
+function clearCats() { selectedCats = []; renderCats(); }
+
+/* ══ SHELF FORM ════════════════════════════════════════ */
+function renderShelves() {
+  const u = unit;
+  const step = u === 'cm' ? '0.5' : '0.25';
+  const ph = { w: u==='cm'?'e.g. 60':'e.g. 24', d: u==='cm'?'e.g. 35':'e.g. 14', h: u==='cm'?'e.g. 30':'e.g. 12' };
+  document.getElementById('shelves-container').innerHTML = shelves.map((s,i) => `
+    <div class="shelf-block">
+      <div class="shelf-hdr">
+        <span class="shelf-hdr-label">Shelf ${i+1}</span>
+        ${shelves.length>1 ? `<button class="remove-btn" onclick="removeShelf(${i})">✕ Remove</button>` : ''}
+      </div>
+      <div class="shelf-fields">
+        <div class="field"><span>Width (${u})</span>
+          <input type="number" min="0.1" step="${step}" placeholder="${ph.w}"
+            value="${s.width}" oninput="updateShelf(${i},'width',this.value)" /></div>
+        <div class="field"><span>Depth (${u})</span>
+          <input type="number" min="0.1" step="${step}" placeholder="${ph.d}"
+            value="${s.depth}" oninput="updateShelf(${i},'depth',this.value)" /></div>
+        <div class="field"><span>Height (${u})</span>
+          <input type="number" min="0.1" step="${step}" placeholder="${ph.h}"
+            value="${s.height}" oninput="updateShelf(${i},'height',this.value)" /></div>
+        <div class="field"><span>Lip (${u})</span>
+          <input type="number" min="0" step="${step}" placeholder="opt."
+            value="${s.lip_height}" oninput="updateShelf(${i},'lip_height',this.value)" /></div>
+      </div>
+      ${i < shelves.length-1 ? `
+      <div class="same-row">
+        <input type="checkbox" id="same-${i}" ${s.sameDims?'checked':''} onchange="toggleSame(${i},this.checked)" />
+        <label for="same-${i}">Same dimensions as Shelf ${i+2}</label>
+        ${s.sameDims ? '<span class="copied-tag">↓ Copied</span>' : ''}
+      </div>` : ''}
+    </div>`).join('');
+}
+
+function updateShelf(i, field, val) {
+  shelves[i][field] = val;
+  if (i > 0 && shelves[i-1].sameDims) propagateSame(i-1);
+}
+function toggleSame(i, checked) {
+  shelves[i].sameDims = checked;
+  if (checked) propagateSame(i);
+  else renderShelves();
+}
+function propagateSame(from) {
+  const s = shelves[from], d = shelves[from+1];
+  if (!d) return;
+  d.width = s.width; d.depth = s.depth; d.height = s.height; d.lip_height = s.lip_height;
+  renderShelves();
+}
+function addShelf() {
+  shelves.push({width:'',depth:'',height:'',lip_height:'',sameDims:false});
+  selectedProducts.push([]);
+  renderShelves();
+}
+function removeShelf(i) {
+  shelves.splice(i,1);
+  selectedProducts.splice(i,1);
+  renderShelves();
+}
+</script>
+
+<script>
+/* ══ MATCHING LOGIC ════════════════════════════════════ */
+function scoreProduct(p, uw, ud, uh) {
+  const {width:pw,depth:pd,height:ph} = p.dimensions;
+  if (pw>uw || pd>ud || ph>uh) return null;
+  const qw = Math.max(1, Math.floor(uw/pw));
+  const qd = Math.max(1, Math.floor(ud/pd));
+
+  // Base dimensional fit score
+  let score = (pw/uw)*0.4 + (pd/ud)*0.3 + (ph/uh)*0.3;
+
+  // Adjust for fill preference
+  const widthCoverage = (qw * pw) / uw; // 0–1, how much width is covered
+  if (fillPref === 'full') {
+    // Reward products that pack the shelf tightly
+    score = score * 0.5 + widthCoverage * 0.5;
+  } else if (fillPref === 'space') {
+    // Reward products that leave breathing room (coverage < 0.75)
+    const spacingBonus = widthCoverage < 0.75 ? (0.75 - widthCoverage) : 0;
+    score = score * 0.7 + spacingBonus * 0.3;
+  }
+
+  return { ...p,
+    catLabel: CATEGORIES.find(c=>c.slug===p.category)?.label || p.category,
+    fitScore: Math.round(score*10000)/10000,
+    qtySide: qw, qtyFront: qd };
+}
+
+function findOrganizers() {
+  const err = document.getElementById('error-msg');
+  err.style.display = 'none';
+
+  const usingCustomShape = isUsingCustomShapeShelving();
+  const sourceShelves = usingCustomShape ? deriveShelvesFromCustomShape() : shelves;
+
+  if (usingCustomShape && sourceShelves.length === 0) {
+    err.textContent = 'Assign shelving to at least one wall before finding organizers.';
+    err.style.display = 'block'; return;
+  }
+  for (let i=0; i<sourceShelves.length; i++) {
+    const s = sourceShelves[i];
+    const label = s.wallLabel ? `${s.wallLabel} (Shelf ${s.levelIndex+1})` : `Shelf ${i+1}`;
+    if (!s.width || !s.depth || !s.height) {
+      err.textContent = `${label} is missing width, depth, or height.`;
+      err.style.display = 'block'; return;
+    }
+  }
+
+  // Reset selections for fresh results
+  selectedProducts = sourceShelves.map(() => []);
+  shelfVisibleCounts = sourceShelves.map(() => RESULTS_PAGE_SIZE);
+
+  const maxP = parseFloat(document.getElementById('max-price').value) || null;
+  const targetBins = parseInt(document.getElementById('pref-bins').value) || null;
+
+  lastShelfResults = sourceShelves.map((s,i) => {
+    const uw = toIn(s.width), ud = toIn(s.depth);
+    const rawH = toIn(s.height), lip = toIn(s.lip_height)||0;
+    const uh = Math.max(0, rawH - lip);
+    const dw = parseFloat(s.width)||0, dd = parseFloat(s.depth)||0;
+    const dh = parseFloat(s.height)||0, dl = parseFloat(s.lip_height)||0;
+    const duh = unit==='cm' ? Math.round(uh/CM*10)/10 : Math.round(uh*4)/4;
+
+    let cands = PRODUCTS.filter(p => {
+      if (selectedCats.length && !selectedCats.includes(p.category)) return false;
+      if (maxP !== null && p.price > maxP) return false;
+      return true;
+    }).map(p => scoreProduct(p,uw,ud,uh)).filter(Boolean);
+
+    // If user specified a target bin count, sort by how close qtySide is to that number
+    if (targetBins) {
+      cands.sort((a,b) => {
+        const da = Math.abs(a.qtySide - targetBins);
+        const db = Math.abs(b.qtySide - targetBins);
+        return da !== db ? da - db : b.fitScore - a.fitScore;
+      });
+    } else {
+      cands.sort((a,b) => b.fitScore - a.fitScore);
+    }
+
+    // Auto-select top pick if nothing selected for this shelf
+    if (!selectedProducts[i] || !selectedProducts[i].length) {
+      if (cands.length) selectedProducts[i] = [{uid: nextUid(), id: cands[0].id, x: 0.0, z: 0.5}];
+      else selectedProducts[i] = [];
+    }
+
+    return { shelfNumber:i+1, dw,dd,dh,dl,duh, uw,ud,uh, rawH, allMatches:cands,
+      wallId: s.wallId, wallLabel: s.wallLabel, levelIndex: s.levelIndex };
+  });
+
+  lastRoomShape = usingCustomShape ? buildRoomShapeForRender() : null;
+  renderResults(lastShelfResults);
+  saveSession();
+}
+
+/* ══ SELECT PRODUCT (multi-select toggle, per-unit instances) ═════════════ */
+// Picks a default position for a newly-added unit so it doesn't land exactly on top of
+// existing units of the same product — offsets along the shelf width, wrapping if it runs out of room.
+function makeInstance(shelf, prod, existingCount) {
+  let x = 0;
+  if (shelf && prod && shelf.uw) {
+    const frac = Math.min(0.9, prod.dimensions.width / shelf.uw);
+    x = frac > 0 ? (existingCount * frac) % 1 : 0;
+  }
+  return { uid: nextUid(), id: prod.id, x, z: 0.5 };
+}
+
+function selectProduct(shelfIdx, productId) {
+  if (!selectedProducts[shelfIdx]) selectedProducts[shelfIdx] = [];
+  const hasAny = selectedProducts[shelfIdx].some(p => p.id === productId);
+  if (hasAny) {
+    selectedProducts[shelfIdx] = selectedProducts[shelfIdx].filter(p => p.id !== productId); // deselect all units
+  } else {
+    const shelf = lastShelfResults[shelfIdx];
+    const prod = PRODUCTS.find(p => p.id === productId);
+    if (prod) selectedProducts[shelfIdx].push(makeInstance(shelf, prod, 0)); // add first unit
+  }
+  const shelfData = lastShelfResults[shelfIdx];
+  if (!shelfData) return;
+  const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+  if (cardsEl) cardsEl.innerHTML = buildCards(shelfData, shelfIdx);
+  refreshLegend();
+  drawPantry();
+}
+
+// Adds one more independent unit of a product that's already selected — e.g. so the user
+// can place a second box behind or beside the first instead of it auto-stacking side-by-side.
+function addInstance(shelfIdx, productId) {
+  const shelf = lastShelfResults[shelfIdx];
+  const prod = PRODUCTS.find(p => p.id === productId);
+  if (!shelf || !prod) return;
+  if (!selectedProducts[shelfIdx]) selectedProducts[shelfIdx] = [];
+  const existingCount = selectedProducts[shelfIdx].filter(p => p.id === productId).length;
+  if (existingCount >= 10) return;
+  selectedProducts[shelfIdx].push(makeInstance(shelf, prod, existingCount));
+  const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+  if (cardsEl) cardsEl.innerHTML = buildCards(shelf, shelfIdx);
+  refreshLegend();
+  drawPantry();
+}
+
+function removeInstance(shelfIdx, uid) {
+  if (!selectedProducts[shelfIdx]) return;
+  selectedProducts[shelfIdx] = selectedProducts[shelfIdx].filter(p => p.uid !== uid);
+  const shelfData = lastShelfResults[shelfIdx];
+  if (shelfData) {
+    const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+    if (cardsEl) cardsEl.innerHTML = buildCards(shelfData, shelfIdx);
+  }
+  refreshLegend();
+  drawPantry();
+}
+
+function updateInstancePos(shelfIdx, uid, axis, value) {
+  const item = (selectedProducts[shelfIdx] || []).find(p => p.uid === uid);
+  if (item) { item[axis] = parseFloat(value); drawPantry(); }
+}
+
+function removeProduct(shelfIdx, productId) {
+  if (!selectedProducts[shelfIdx]) return;
+  selectedProducts[shelfIdx] = selectedProducts[shelfIdx].filter(p => p.id !== productId);
+  const shelfData = lastShelfResults[shelfIdx];
+  if (shelfData) {
+    const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+    if (cardsEl) cardsEl.innerHTML = buildCards(shelfData, shelfIdx);
+  }
+  refreshLegend();
+  drawPantry();
+}
+
+function clearShelfSelections(shelfIdx) {
+  selectedProducts[shelfIdx] = [];
+  const shelfData = lastShelfResults[shelfIdx];
+  if (shelfData) {
+    const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+    if (cardsEl) cardsEl.innerHTML = buildCards(shelfData, shelfIdx);
+  }
+  refreshLegend();
+  drawPantry();
+}
+
+function clearAllSelections() {
+  selectedProducts = lastShelfResults.map(() => []);
+  lastShelfResults.forEach((shelfData, shelfIdx) => {
+    const cardsEl = document.getElementById(`cards-${shelfIdx}`);
+    if (cardsEl) cardsEl.innerHTML = buildCards(shelfData, shelfIdx);
+  });
+  refreshLegend();
+  drawPantry();
+}
+
+function addToShoppingList(shelfIdx, productId) {
+  const prod = PRODUCTS.find(p => p.id === productId);
+  if (!prod) return;
+  const qty = (selectedProducts[shelfIdx] || []).filter(p => p.id === productId).length || 1;
+  const existing = shoppingList.find(item => item.id === productId && item.shelfNumber === shelfIdx+1);
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    shoppingList.push({ id: productId, name: prod.name, price: prod.price, qty, shelfNumber: shelfIdx+1 });
+  }
+  localStorage.setItem('pantryShoppingList', JSON.stringify(shoppingList));
+  renderShoppingList();
+}
+
+function removeFromShoppingList(idx) {
+  shoppingList.splice(idx, 1);
+  localStorage.setItem('pantryShoppingList', JSON.stringify(shoppingList));
+  renderShoppingList();
+}
+
+function clearShoppingList() {
+  if (!confirm('Clear your entire shopping list?')) return;
+  shoppingList = [];
+  localStorage.setItem('pantryShoppingList', JSON.stringify(shoppingList));
+  renderShoppingList();
+}
+
+function toggleSavedPanel() {
+  document.getElementById('saved-panel').classList.toggle('collapsed');
+}
+
+function renderShoppingList() {
+  const el = document.getElementById('shopping-list-body');
+  if (!el) return;
+  const countEl = document.getElementById('saved-count');
+  const totalItems = shoppingList.reduce((a, item) => a + item.qty, 0);
+  countEl.textContent = totalItems;
+
+  if (shoppingList.length === 0) {
+    el.innerHTML = '<p class="saved-empty">No items saved yet. Select products and click "+ Add to List" to save them here.</p>';
+    return;
+  }
+  const total = shoppingList.reduce((a, item) => a + item.price * item.qty, 0);
+  el.innerHTML = shoppingList.map((item, i) => `
+    <div class="sl-row">
+      <span class="sl-name">${item.name} <span class="sl-shelf">Shelf ${item.shelfNumber}</span></span>
+      <span class="sl-qty">×${item.qty}</span>
+      <span class="sl-price">$${(item.price * item.qty).toFixed(2)}</span>
+      <a class="sl-link" href="https://www.amazon.com" target="_blank" rel="noopener noreferrer">Shop →</a>
+      <button class="sl-remove" onclick="removeFromShoppingList(${i})">✕</button>
+    </div>`).join('') + `
+    <div class="sl-total">
+      <span>${shoppingList.length} item${shoppingList.length!==1?'s':''} · $${total.toFixed(2)}</span>
+      <button class="sl-clear" onclick="clearShoppingList()">Clear All</button>
+    </div>`;
+}
+
+// Custom-shape results are tagged with the wall they came from; fall back to plain "Shelf N" otherwise.
+function shelfTitle(shelf) {
+  return shelf.wallLabel ? `${shelf.wallLabel} — Shelf ${shelf.levelIndex + 1}` : `Shelf ${shelf.shelfNumber}`;
+}
+
+function refreshLegend() {
+  const legendRows = lastShelfResults.map((shelf, i) => {
+    const sels = selectedProducts[i] || [];
+    const counts = {};
+    sels.forEach(s => { counts[s.id] = (counts[s.id] || 0) + 1; });
+    const names = Object.keys(counts).map(id => {
+      const p = shelf.allMatches.find(m=>m.id===id) || PRODUCTS.find(m=>m.id===id);
+      if (!p) return '';
+      return counts[id] > 1 ? `${p.name} ×${counts[id]}` : p.name;
+    }).filter(Boolean);
+    const label = names.length ? '— ' + names.join(', ') : '';
+    const isDragRow = i === lastShelfResults.length - 1;
+    return `<div class="legend-row">
+      <span class="legend-shelf">${shelfTitle(shelf)} <span>${label}</span></span>
+      <span class="legend-qty">
+        ${sels.length} item${sels.length!==1?'s':''}
+        ${sels.length ? `<button class="legend-clear-btn" onclick="clearShelfSelections(${i})" title="Remove all selections for this shelf">✕ Clear</button>` : ''}
+        ${isDragRow ? `<span class="drag-tag">drag to rotate</span>` : ''}
+      </span>
+    </div>`;
+  }).join('');
+  const legendEl = document.getElementById('shelf-legend');
+  if (legendEl) legendEl.innerHTML = legendRows;
+}
+
+/* ══ RESULTS RENDER ════════════════════════════════════ */
+function renderResults(shelfResults) {
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  const sub = shelfResults.length + ' shelf' + (shelfResults.length!==1?'s':'');
+  const type = pantryType === 'walkin' ? ' · Walk-in pantry' : '';
+  document.getElementById('results-sub').innerHTML =
+    `Top Matches · <span class="hi">${sub}</span> · Units in <span class="hi">${unit.toUpperCase()}</span>${type}`;
+
+  refreshLegend();
+
+  document.getElementById('shelf-results').innerHTML = shelfResults.map((shelf,i) => buildShelfSectionHTML(shelf,i)).join('');
+
+  setTimeout(() => {
+    initCanvas();
+    drawPantry();
+    renderShoppingList();
+    setTimeout(() => document.getElementById('rotate-hint').classList.add('fade'), 4000);
+  }, 50);
+}
+
+function buildShelfSectionHTML(shelf, i) {
+  const total = shelf.allMatches.length;
+  const visibleCount = Math.min(total, shelfVisibleCounts[i] || RESULTS_PAGE_SIZE);
+  const hasMore = visibleCount < total;
+  return `
+    <div class="shelf-section" id="shelf-section-${i}">
+      <div class="shelf-res-hdr">
+        <div>
+          <p class="shelf-res-title">${shelfTitle(shelf)}</p>
+          <p class="shelf-res-dims">
+            ${shelf.dw}${unit} W × ${shelf.dd}${unit} D × ${shelf.dh}${unit} H
+            ${shelf.dl>0 ? ` · Lip <span class="hi">${shelf.dl}${unit}</span> · Usable height ${shelf.duh}${unit}` : ''}
+          </p>
+        </div>
+        <span class="match-pill">${total} match${total!==1?'es':''}</span>
+      </div>
+      ${total===0
+        ? `<p class="no-matches">No products found. Try adjusting filters or measurements.</p>`
+        : `<div class="cards-grid" id="cards-${i}">${buildCards(shelf,i)}</div>
+           <p class="select-hint">↑ click cards to select/deselect — select multiple to combine on one shelf</p>
+           ${(hasMore || visibleCount > RESULTS_PAGE_SIZE) ? `
+           <div class="show-more-row">
+             ${hasMore ? `<button type="button" class="show-more-btn" onclick="showMoreOptions(${i})">Show More Options (${total - visibleCount} more) ↓</button>` : ''}
+             ${visibleCount > RESULTS_PAGE_SIZE ? `<button type="button" class="show-more-btn" onclick="showLessOptions(${i})">Show Less ↑</button>` : ''}
+           </div>` : ''}`}
+    </div>`;
+}
+
+function showMoreOptions(shelfIdx) {
+  const shelf = lastShelfResults[shelfIdx];
+  if (!shelf) return;
+  shelfVisibleCounts[shelfIdx] = Math.min(shelf.allMatches.length, (shelfVisibleCounts[shelfIdx] || RESULTS_PAGE_SIZE) + RESULTS_PAGE_SIZE);
+  const sectionEl = document.getElementById(`shelf-section-${shelfIdx}`);
+  if (sectionEl) sectionEl.outerHTML = buildShelfSectionHTML(shelf, shelfIdx);
+}
+
+function showLessOptions(shelfIdx) {
+  const shelf = lastShelfResults[shelfIdx];
+  if (!shelf) return;
+  shelfVisibleCounts[shelfIdx] = RESULTS_PAGE_SIZE;
+  const sectionEl = document.getElementById(`shelf-section-${shelfIdx}`);
+  if (sectionEl) sectionEl.outerHTML = buildShelfSectionHTML(shelf, shelfIdx);
+}
+
+function buildCards(shelf, shelfIdx) {
+  const u = unit;
+  const sels = selectedProducts[shelfIdx] || [];
+  const visibleCount = Math.min(shelf.allMatches.length, shelfVisibleCounts[shelfIdx] || RESULTS_PAGE_SIZE);
+  return shelf.allMatches.slice(0, visibleCount).map((p,idx) => {
+    const instances = sels.filter(s => s.id === p.id);
+    const sel = instances.length > 0;
+    const isCylinder = p.shape === 'cylinder';
+    const dw = u==='cm' ? Math.round(p.dimensions.width /CM*10)/10 : p.dimensions.width;
+    const dd = u==='cm' ? Math.round(p.dimensions.depth /CM*10)/10 : p.dimensions.depth;
+    const dh = u==='cm' ? Math.round(p.dimensions.height/CM*10)/10 : p.dimensions.height;
+    const slidersHtml = sel ? `
+      <div class="pos-sliders" onclick="event.stopPropagation()">
+        <div class="slider-row-top">
+          <span class="qty-label">${instances.length} unit${instances.length!==1?'s':''} selected</span>
+          <button class="sl-add-btn" type="button" onclick="addInstance(${shelfIdx},'${p.id}')" ${instances.length>=10?'disabled':''}>+ Add Another Unit</button>
+          <button class="sl-add-btn" type="button" onclick="addToShoppingList(${shelfIdx},'${p.id}')">+ Add to List</button>
+          <button class="del-btn" type="button" onclick="removeProduct(${shelfIdx},'${p.id}')">✕ Remove All</button>
+        </div>
+        <p class="instance-hint">Each unit below can be positioned independently — e.g. one in front, one behind.</p>
+        ${instances.map((inst, ii) => `
+          <div class="instance-block">
+            <div class="instance-block-hdr">
+              <span class="instance-tag">Unit ${ii+1}</span>
+              ${instances.length>1 ? `<button class="instance-del-btn" type="button" onclick="removeInstance(${shelfIdx},'${inst.uid}')" title="Remove this unit">✕</button>` : ''}
+            </div>
+            <label class="slider-label">← Left / Right →
+              <input type="range" min="0" max="1" step="0.05" value="${inst.x}"
+                oninput="updateInstancePos(${shelfIdx},'${inst.uid}','x',this.value)" />
+            </label>
+            <label class="slider-label">← Back / Front →
+              <input type="range" min="0" max="1" step="0.05" value="${inst.z}"
+                oninput="updateInstancePos(${shelfIdx},'${inst.uid}','z',this.value)" />
+            </label>
+          </div>`).join('')}
+      </div>` : '';
+    return `
+    <div class="card-wrap">
+      ${idx===0 ? '<div class="top-badge">Top Pick</div>' : ''}
+      <div class="product-card ${sel?'selected':''}" onclick="selectProduct(${shelfIdx},'${p.id}')">
+        <div class="selected-ribbon">✓ Selected for Shelf ${shelf.shelfNumber}</div>
+        <div class="prod-img-area">${isCylinder ? '🛢️' : '📦'} ${p.name}</div>
+        <div class="prod-body">
+          <span class="cat-badge">${p.catLabel}</span>
+          <p class="prod-name">${p.name}</p>
+          <p class="prod-desc">${p.description}</p>
+          <div class="dim-row">
+            ${isCylinder
+              ? `<span class="dim-tag">⌀ ${dw}${u}</span><span class="dim-tag">H ${dh}${u}</span>`
+              : `<span class="dim-tag">W ${dw}${u}</span><span class="dim-tag">D ${dd}${u}</span><span class="dim-tag">H ${dh}${u}</span>`}
+          </div>
+          <div class="fit-row">
+            <span class="fit-pill">${p.qtySide}× side-by-side</span>
+            <span class="fit-pill">${p.qtyFront}× front-to-back</span>
+          </div>
+          ${slidersHtml}
+          <div class="prod-footer">
+            <span class="prod-price">$${p.price.toFixed(2)}</span>
+            <a class="buy-btn" href="https://www.amazon.com" target="_blank" rel="noopener noreferrer"
+               onclick="event.stopPropagation()">Shop →</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function editForm() {
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('form-view').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function resetForm() {
+  if (!confirm('Start over? Your saved session will be kept — use Load Saved to restore it.')) return;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('form-view').style.display = 'block';
+  shelves = [{width:'',depth:'',height:'',lip_height:'',sameDims:false}];
+  selectedCats = []; selectedProducts = [[]]; lastShelfResults = []; shelfVisibleCounts = [];
+  fillPref = 'none'; setFill('none');
+  document.getElementById('pref-bins').value = '';
+  document.getElementById('max-price').value = '';
+  document.getElementById('error-msg').style.display = 'none';
+  renderCats(); renderShelves(); window.scrollTo(0,0);
+}
+</script>
+
+<script>
+/* ══ 3D CANVAS RENDERER ════════════════════════════════
+   - Drag canvas background to rotate
+   - Drag boxes along depth axis (front/back placement)
+   - Clear front/back labels
+═══════════════════════════════════════════════════════ */
+let canvas, ctx;
+let rotY = -0.45, rotX = 0.22;
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0, dragStartRotY = 0, dragStartRotX = 0;
+
+function initCanvas() {
+  canvas = document.getElementById('pantryCanvas');
+  if (!canvas) return;
+  if (canvas._initialized) {
+    // Re-size on repeat calls
+    const w = canvas.offsetWidth;
+    canvas.width = w;
+    canvas.height = Math.min(450, Math.round(w * 0.6));
+    drawPantry();
+    return;
+  }
+  canvas._initialized = true;
+  ctx = canvas.getContext('2d');
+  const w = canvas.offsetWidth;
+  canvas.width = w;
+  canvas.height = Math.min(450, Math.round(w * 0.6));
+
+  canvas.addEventListener('mousedown',  onCanvasDown);
+  canvas.addEventListener('mousemove',  onCanvasMove);
+  canvas.addEventListener('mouseup',    onCanvasUp);
+  canvas.addEventListener('mouseleave', onCanvasUp);
+  canvas.addEventListener('touchstart', onTouchDown, {passive:false});
+  canvas.addEventListener('touchmove',  onTouchMv,   {passive:false});
+  canvas.addEventListener('touchend',   onCanvasUp);
+}
+
+function onCanvasDown(e) {
+  isDragging = true;
+  dragStartX = e.clientX; dragStartY = e.clientY;
+  dragStartRotY = rotY; dragStartRotX = rotX;
+}
+function onCanvasMove(e) {
+  if (!isDragging) return;
+  rotY = dragStartRotY - (e.clientX - dragStartX) * 0.008;
+  rotX = dragStartRotX - (e.clientY - dragStartY) * 0.006;
+  rotX = Math.max(-0.55, Math.min(0.55, rotX));
+  drawPantry();
+}
+function onCanvasUp() { isDragging = false; }
+function onTouchDown(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  isDragging = true;
+  dragStartX = t.clientX; dragStartY = t.clientY;
+  dragStartRotY = rotY; dragStartRotX = rotX;
+}
+function onTouchMv(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  if (!isDragging) return;
+  rotY = dragStartRotY - (t.clientX - dragStartX) * 0.008;
+  rotX = dragStartRotX - (t.clientY - dragStartY) * 0.006;
+  rotX = Math.max(-0.55, Math.min(0.55, rotX));
+  drawPantry();
+}
+
+/* ── 3D projection ───────────────────────────── */
+function project3D(x, y, z) {
+  const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+  const rx = x * cosY + z * sinY;
+  const rz = -x * sinY + z * cosY;
+  const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+  const ry = y * cosX - rz * sinX;
+  const rz2 = y * sinX + rz * cosX;
+  const fov = canvas.width * 1.6;
+  const dist = fov + rz2 * 0.6;
+  const scale = fov / dist;
+  return { sx: canvas.width/2 + rx * scale, sy: canvas.height/2 - ry * scale, scale };
+}
+function pt(x,y,z) { return project3D(x,y,z); }
+
+// Rotates a direction vector the same way project3D rotates points, without the perspective
+// divide — used to back-face-cull the curved side of a cylinder as the camera orbits it.
+function projectDirDepth(nx, ny, nz) {
+  const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+  const rz = -nx * sinY + nz * cosY;
+  const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+  return ny * sinX + rz * cosX;
+}
+
+function drawFace(pts, fill, stroke) {
+  ctx.beginPath();
+  ctx.moveTo(pts[0].sx, pts[0].sy);
+  for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i].sx, pts[i].sy);
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 0.8; ctx.stroke(); }
+}
+
+function drawBox(ox, oy, oz, bw, bh, bd, faceColor, edgeColor) {
+  const x0=ox,x1=ox+bw,y0=oy,y1=oy+bh,z0=oz,z1=oz+bd;
+  drawFace([pt(x0,y0,z0),pt(x1,y0,z0),pt(x1,y0,z1),pt(x0,y0,z1)], faceColor, edgeColor);
+  drawFace([pt(x0,y1,z0),pt(x1,y1,z0),pt(x1,y1,z1),pt(x0,y1,z1)], lighten(faceColor,40), edgeColor);
+  drawFace([pt(x0,y0,z1),pt(x1,y0,z1),pt(x1,y1,z1),pt(x0,y1,z1)], lighten(faceColor,20), edgeColor);
+  drawFace([pt(x0,y0,z0),pt(x1,y0,z0),pt(x1,y1,z0),pt(x0,y1,z0)], darken(faceColor,20), edgeColor);
+  drawFace([pt(x0,y0,z0),pt(x0,y0,z1),pt(x0,y1,z1),pt(x0,y1,z0)], darken(faceColor,10), edgeColor);
+  drawFace([pt(x1,y0,z0),pt(x1,y0,z1),pt(x1,y1,z1),pt(x1,y1,z0)], darken(faceColor,30), edgeColor);
+}
+
+// cx, cz = center of the circular footprint; baseY = bottom of the cylinder
+function drawCylinder(cx, baseY, cz, radius, height, faceColor, edgeColor) {
+  if (radius <= 0 || height <= 0) return;
+  const SEGS = 20;
+  const ring = [];
+  for (let i = 0; i <= SEGS; i++) {
+    const theta = (i / SEGS) * Math.PI * 2;
+    ring.push({ x: cx + radius * Math.cos(theta), z: cz + radius * Math.sin(theta), theta });
+  }
+  drawFace(ring.map(p => pt(p.x, baseY, p.z)), darken(faceColor, 25), edgeColor);
+  for (let i = 0; i < SEGS; i++) {
+    const a = ring[i], b = ring[i+1];
+    const mid = (a.theta + b.theta) / 2;
+    // Skip segments facing away from the camera so the curved side reads correctly at any rotation
+    if (projectDirDepth(Math.cos(mid), 0, Math.sin(mid)) >= 0) continue;
+    const shade = Math.round(28 * Math.cos(mid - rotY)); // cheap directional shading for a rounded look
+    drawFace(
+      [pt(a.x, baseY, a.z), pt(b.x, baseY, b.z), pt(b.x, baseY+height, b.z), pt(a.x, baseY+height, a.z)],
+      shiftColor(faceColor, shade), edgeColor
+    );
+  }
+  drawFace(ring.map(p => pt(p.x, baseY+height, p.z)), lighten(faceColor, 35), edgeColor);
+}
+
+function lighten(hex,amt){return shiftColor(hex,amt);}
+function darken(hex,amt){return shiftColor(hex,-amt);}
+function shiftColor(hex, amt) {
+  let r,g,b;
+  if (hex.startsWith('rgb')) { const m=hex.match(/\d+/g); r=parseInt(m[0]);g=parseInt(m[1]);b=parseInt(m[2]); }
+  else { let c=hex.replace('#',''); if(c.length===3) c=c[0]+c[0]+c[1]+c[1]+c[2]+c[2]; r=parseInt(c.substr(0,2),16);g=parseInt(c.substr(2,2),16);b=parseInt(c.substr(4,2),16); }
+  return `rgb(${Math.min(255,Math.max(0,r+amt))},${Math.min(255,Math.max(0,g+amt))},${Math.min(255,Math.max(0,b+amt))})`;
+}
+
+/* ── Main draw ────────────────────────────────── */
+function drawPantry() {
+  if (!canvas || !ctx) return;
+  if (lastRoomShape) { drawCustomPantry(); return; }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 0.5;
+  for (let x=0;x<canvas.width;x+=16) { ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke(); }
+  for (let y=0;y<canvas.height;y+=16) { ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke(); }
+
+  if (!lastShelfResults.length) {
+    ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.font=`${canvas.width*0.022}px 'Space Mono',monospace`;
+    ctx.textAlign='center'; ctx.fillText('3D preview appears after finding organizers',canvas.width/2,canvas.height/2);
+    return;
+  }
+
+  // Walk-In Pantry (without the custom-shape tool) still has real room dimensions on screen — use them
+  // to size the enclosure so the model reflects the actual room, not just whatever the shelves add up
+  // to. Falls back to shelf-derived sizing (today's behavior) wherever a room field is left blank, and
+  // never shrinks below what the shelves themselves need so nothing gets clipped.
+  const isSimpleWalkIn = pantryType === 'walkin';
+  const roomWidthIn = isSimpleWalkIn ? (toIn(parseFloat(document.getElementById('room-width').value)) || 0) : 0;
+  const roomDepthIn = isSimpleWalkIn ? (toIn(parseFloat(document.getElementById('room-depth').value)) || 0) : 0;
+  const roomHeightIn = isSimpleWalkIn ? (toIn(parseFloat(document.getElementById('room-height').value)) || 0) : 0;
+
+  const maxW = Math.max(roomWidthIn, ...lastShelfResults.map(s=>s.uw));
+  const maxD = Math.max(roomDepthIn, ...lastShelfResults.map(s=>s.ud));
+  const totalHInches = lastShelfResults.reduce((a,s) => a + s.rawH, 0);
+  const roomTotalHInches = Math.max(roomHeightIn, totalHInches);
+  const SCALE = Math.min(canvas.width, canvas.height) / Math.max(maxW, maxD*1.5, roomTotalHInches) * 0.32;
+  const W = maxW * SCALE, D = maxD * SCALE;
+  let yPos=0; const shelfYs=[];
+  for (const s of lastShelfResults) { shelfYs.push(yPos); yPos += s.rawH * SCALE; }
+  const totalH3D = Math.max(yPos, roomHeightIn * SCALE);
+  const ox=-W/2, oz=-D/2, oy=-totalH3D/2;
+
+  // Enclosure — back, left & right walls so the unit reads as a real cabinet/pantry, not floating boards
+  const wallThk = 0.35 * SCALE;
+  const wallColor = '#ded7c4', wallEdge = '#a89f88';
+  drawBox(ox, oy, oz, W, totalH3D, wallThk, wallColor, wallEdge);              // back wall
+  drawBox(ox, oy, oz, wallThk, totalH3D, D, wallColor, wallEdge);              // left wall
+  drawBox(ox + W - wallThk, oy, oz, wallThk, totalH3D, D, wallColor, wallEdge); // right wall
+
+  // Front wall (with a door gap) — only drawn once actual room width/depth are entered, so a plain
+  // Walk-In Pantry with no room dimensions still looks like today's open-front cabinet view.
+  let hasDoorWall = false;
+  if (isSimpleWalkIn && roomWidthIn > 0 && roomDepthIn > 0) {
+    const doorWidthIn = toIn(parseFloat(document.getElementById('door-width').value) || 0);
+    const doorWidth3D = Math.min(doorWidthIn * SCALE, W * 0.9);
+    const frontZ = oz + D - wallThk;
+    if (doorWidth3D > 0) {
+      const gapStart = ox + (W - doorWidth3D) / 2, gapEnd = gapStart + doorWidth3D;
+      if (gapStart > ox) drawBox(ox, oy, frontZ, gapStart - ox, totalH3D, wallThk, wallColor, wallEdge);
+      if (ox + W > gapEnd) drawBox(gapEnd, oy, frontZ, ox + W - gapEnd, totalH3D, wallThk, wallColor, wallEdge);
+    } else {
+      drawBox(ox, oy, frontZ, W, totalH3D, wallThk, wallColor, wallEdge);
+    }
+    hasDoorWall = true;
+  }
+
+  // Shelves — the boards inside the enclosure
+  lastShelfResults.forEach((shelf, si) => {
+    const sy = oy + shelfYs[si];
+    const shW = shelf.uw * SCALE, shD = shelf.ud * SCALE;
+    const shThk = 0.3 * SCALE;
+    drawBox(ox, sy, oz, shW, shThk, shD, '#d8d4c8', '#999');
+  });
+  // Top cap (thin line to close the top)
+  const topY = oy + totalH3D;
+  drawBox(ox, topY, oz, W, 0.3*SCALE, D, '#d8d4c8', '#999');
+
+  // Products — draw all on top of shelves, flagging anything that overlaps or doesn't fit
+  let anyBad = false;
+  lastShelfResults.forEach((shelf, si) => {
+    const sy = oy + shelfYs[si];
+    const shW = shelf.uw * SCALE, shD = shelf.ud * SCALE;
+    const shThk = 0.3 * SCALE;
+    const sels = selectedProducts[si] || [];
+
+    // Build the full list of placed boxes (qty expanded) before drawing, so we can check overlaps first
+    const boxes = [];
+    // Each selected instance is one independently-positioned unit — no more auto side-by-side stacking
+    sels.forEach(sel => {
+      const prod = PRODUCTS.find(p=>p.id===sel.id);
+      if (!prod) return;
+      const pw=prod.dimensions.width*SCALE, pd=prod.dimensions.depth*SCALE, ph=prod.dimensions.height*SCALE;
+      const lipInches = shelf.uh > 0 ? (shelf.rawH - shelf.uh) : 0;
+      const lip = lipInches * SCALE;
+      const usableH3D = shelf.uh * SCALE;
+      const bh = Math.min(ph, usableH3D);
+      const maxX = shW - pw;
+      const bx = ox + (sel.x ?? 0) * Math.max(0, maxX);
+      const maxZ = shD - pd;
+      const bz = oz + (sel.z ?? 0.5) * Math.max(0, maxZ);
+      const by = sy + shThk + lip;
+      const outOfBounds = bx < ox - 0.5*SCALE || bx + pw > ox + shW + 0.5*SCALE;
+      boxes.push({ prod, bx, by, bz, pw, bh, pd, outOfBounds, overlaps: false });
+    });
+
+    // Pairwise footprint overlap check (all boxes on a shelf share the same base height)
+    const eps = 0.05 * SCALE;
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i], b = boxes[j];
+        const ax0=a.bx+eps, ax1=a.bx+a.pw-eps, az0=a.bz+eps, az1=a.bz+a.pd-eps;
+        const bx0=b.bx+eps, bx1=b.bx+b.pw-eps, bz0=b.bz+eps, bz1=b.bz+b.pd-eps;
+        if (ax0 < bx1 && ax1 > bx0 && az0 < bz1 && az1 > bz0) { a.overlaps = true; b.overlaps = true; }
+      }
+    }
+
+    boxes.forEach(b => {
+      const bad = b.overlaps || b.outOfBounds;
+      if (bad) anyBad = true;
+      const color = bad ? '#ff4d4d' : (b.prod.color || '#cce8ff');
+      const edge = bad ? '#a30000' : '#555';
+      if (b.prod.shape === 'cylinder') {
+        const radius = Math.min(b.pw, b.pd) / 2 - 0.1*SCALE;
+        drawCylinder(b.bx + b.pw/2, b.by, b.bz + b.pd/2, Math.max(0, radius), b.bh, color, edge);
+      } else {
+        drawBox(b.bx, b.by, b.bz, b.pw - 0.2*SCALE, b.bh, b.pd, color, edge);
+      }
+    });
+  });
+  const warnEl = document.getElementById('overlap-warning');
+  if (warnEl) warnEl.classList.toggle('show', anyBad);
+
+  // ── Front label — tracks the model's actual front-bottom edge, offset by a fixed pixel
+  //    gap (not a SCALE-based one) so it clears the model regardless of how big it is on screen ──
+  ctx.save();
+  ctx.font = `bold ${Math.max(10, canvas.width * 0.015)}px 'Space Mono', monospace`;
+  ctx.textAlign = 'center';
+  const frontEdge = [
+    pt(ox,     oy, oz + D),
+    pt(ox + W, oy, oz + D),
+  ];
+  const labelSx = (frontEdge[0].sx + frontEdge[1].sx) / 2;
+  const bottomMostSy = Math.max(frontEdge[0].sy, frontEdge[1].sy);
+  const gap = 22; // fixed pixel clearance — independent of model scale
+  const labelText = hasDoorWall ? '▼ DOOR' : '▼ FRONT';
+  const halfTextW = ctx.measureText(labelText).width / 2;
+  const clampedSx = Math.min(canvas.width - halfTextW - 4, Math.max(halfTextW + 4, labelSx));
+  const clampedSy = Math.min(canvas.height - 8, bottomMostSy + gap);
+  ctx.fillStyle = '#3a6b3c'; ctx.globalAlpha = 0.85;
+  ctx.fillText(labelText, clampedSx, clampedSy);
+  ctx.restore();
+}
+</script>
+
+<script>
+/* ══ CUSTOM SHAPE — toggle & wizard dispatch ══════════════ */
+const WALL_COLORS = ['#f0a500','#3a6b3c','#7a5c9e','#c0392b','#2c6e8f','#a67c3d','#5c7a99','#8a6d3b'];
+
+function updateCustomShapeUI() {
+  const active = pantryType === 'walkin' && customShape.active;
+  const wField = document.getElementById('room-width-field');
+  const dField = document.getElementById('room-depth-field');
+  if (wField) wField.style.display = active ? 'none' : '';
+  if (dField) dField.style.display = active ? 'none' : '';
+  const check = document.getElementById('custom-shape-check');
+  if (check) check.checked = customShape.active;
+  const wizard = document.getElementById('custom-shape-wizard');
+  if (wizard) {
+    wizard.classList.toggle('visible', active);
+    wizard.style.display = active ? 'block' : 'none';
+  }
+  updateShelfMeasurementsCardVisibility();
+  if (active) renderShapeWizardStep();
+  else teardownShapeCanvas();
+}
+
+function updateShelfMeasurementsCardVisibility() {
+  const shelfCard = document.getElementById('shelf-measurements-card');
+  if (!shelfCard) return;
+  shelfCard.style.display = isUsingCustomShapeShelving() ? 'none' : '';
+}
+
+function toggleCustomShape(checked) {
+  customShape.active = checked;
+  updateCustomShapeUI();
+  saveSession();
+}
+
+function renderShapeWizardStep() {
+  teardownShapeCanvas();
+  if (customShape.step === 'measure') renderMeasureStep();
+  else if (customShape.step === 'door') renderDoorStep();
+  else if (customShape.step === 'shelving') renderShelvingStep();
+  else renderDrawStep();
+}
+
+/* ══ DRAWING CANVAS ENGINE (shared by all 4 steps) ════════ */
+let shapeCanvas, shapeCtx;
+let shapeMouse = null;
+let shapeShiftHeld = false;
+let shapeFlashMsg = '';
+let shapeFlashTimer = null;
+let shapeLastTapTime = 0;
+let shapeDragVertexIdx = -1;
+let shapeDidDrag = false;
+let shapeResizeHandler = null, shapeKeydownHandler = null, shapeKeyupHandler = null;
+
+function teardownShapeCanvas() {
+  if (shapeResizeHandler) { window.removeEventListener('resize', shapeResizeHandler); shapeResizeHandler = null; }
+  if (shapeKeydownHandler) { window.removeEventListener('keydown', shapeKeydownHandler); shapeKeydownHandler = null; }
+  if (shapeKeyupHandler) { window.removeEventListener('keyup', shapeKeyupHandler); shapeKeyupHandler = null; }
+  shapeCanvas = null; shapeCtx = null;
+}
+
+function getShapePos(evt) {
+  const rect = shapeCanvas.getBoundingClientRect();
+  const t = evt.touches && evt.touches[0];
+  const clientX = t ? t.clientX : evt.clientX;
+  const clientY = t ? t.clientY : evt.clientY;
+  return {
+    x: (clientX - rect.left) * (shapeCanvas.width / rect.width),
+    y: (clientY - rect.top) * (shapeCanvas.height / rect.height),
+  };
+}
+
+/* ── Step 1: Draw ─────────────────────────────── */
+function renderDrawStep() {
+  const wizard = document.getElementById('custom-shape-wizard');
+  if (!wizard) return;
+  wizard.innerHTML = `
+    <p class="shape-step-label">Step 1 of 4 — Sketch Your Pantry</p>
+    <div class="shape-canvas-wrap">
+      <div class="shape-canvas-label">Trace your pantry shape — click to place corners, double-click to finish.</div>
+      <div class="shape-wall-count" id="shape-wall-count">Walls: 0</div>
+      <canvas id="shapeCanvas"></canvas>
+    </div>
+    <p class="shape-hint">Hold Shift to draw freeform angles (disables angle snapping). Click near the first point, double-click, or press Done to close the shape. Drag an existing point to move it.</p>
+    <div class="shape-controls-row">
+      <button type="button" class="shape-btn danger" id="shape-undo-btn" onclick="undoShapePoint()">Undo Last Point</button>
+      <button type="button" class="shape-btn danger" id="shape-clear-btn" onclick="clearShapeDrawing()">Clear All</button>
+      <button type="button" class="shape-btn primary" id="shape-done-btn" onclick="finalizeShapeClose()">Done</button>
+    </div>
+  `;
+  initShapeCanvas();
+  updateWallCounter();
+  updateShapeControlsState();
+}
+
+function initShapeCanvas() {
+  teardownShapeCanvas();
+  shapeCanvas = document.getElementById('shapeCanvas');
+  if (!shapeCanvas) return;
+  shapeCtx = shapeCanvas.getContext('2d');
+
+  shapeResizeHandler = () => {
+    if (!shapeCanvas) return;
+    shapeCanvas.width = shapeCanvas.clientWidth;
+    shapeCanvas.height = shapeCanvas.clientHeight;
+    drawShapeCanvas();
+  };
+  shapeKeydownHandler = (e) => { if (e.key === 'Shift') { shapeShiftHeld = true; drawShapeCanvas(); } };
+  shapeKeyupHandler = (e) => { if (e.key === 'Shift') { shapeShiftHeld = false; drawShapeCanvas(); } };
+  window.addEventListener('resize', shapeResizeHandler);
+  window.addEventListener('keydown', shapeKeydownHandler);
+  window.addEventListener('keyup', shapeKeyupHandler);
+
+  shapeCanvas.width = shapeCanvas.clientWidth;
+  shapeCanvas.height = shapeCanvas.clientHeight;
+
+  shapeCanvas.addEventListener('mousedown', onShapeMouseDown);
+  shapeCanvas.addEventListener('mousemove', onShapeMouseMove);
+  shapeCanvas.addEventListener('mouseup', onShapeMouseUp);
+  shapeCanvas.addEventListener('mouseleave', () => { shapeMouse = null; drawShapeCanvas(); });
+  shapeCanvas.addEventListener('click', onShapeClick);
+  shapeCanvas.addEventListener('dblclick', onShapeDblClick);
+  shapeCanvas.addEventListener('touchstart', onShapeTouchStart, {passive:false});
+  shapeCanvas.addEventListener('touchmove', onShapeTouchMove, {passive:false});
+
+  drawShapeCanvas();
+}
+
+function hitTestVertex(pos) {
+  const v = customShape.vertices;
+  for (let i = 0; i < v.length; i++) {
+    if (Math.hypot(v[i].x - pos.x, v[i].y - pos.y) <= 10) return i;
+  }
+  return -1;
+}
+
+function onShapeMouseDown(e) {
+  const idx = hitTestVertex(getShapePos(e));
+  if (idx >= 0) { shapeDragVertexIdx = idx; shapeDidDrag = false; }
+}
+function onShapeMouseUp() {
+  if (shapeDragVertexIdx >= 0) {
+    shapeDragVertexIdx = -1;
+    if (shapeDidDrag) drawShapeCanvas();
+  }
+}
+function onShapeMouseMove(e) {
+  const pos = getShapePos(e);
+  if (shapeDragVertexIdx >= 0) {
+    shapeDidDrag = true;
+    customShape.vertices[shapeDragVertexIdx] = { x: Math.round(pos.x / 20) * 20, y: Math.round(pos.y / 20) * 20 };
+    drawShapeCanvas();
+    return;
+  }
+  if (customShape.closed) return;
+  shapeMouse = pos;
+  drawShapeCanvas();
+}
+
+function computeSnappedPreviewPoint() {
+  const v = customShape.vertices;
+  if (!v.length || !shapeMouse) return null;
+  const last = v[v.length - 1];
+  let dx = shapeMouse.x - last.x, dy = shapeMouse.y - last.y;
+  let angleDeg = null, snapped = false;
+  if (!shapeShiftHeld) {
+    const dist = Math.hypot(dx, dy);
+    if (dist > 2) {
+      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      const candidates = [0, 45, 90, 135, 180, -45, -90, -135];
+      let best = candidates[0], bestDiff = 999;
+      candidates.forEach(c => {
+        let diff = Math.abs(angle - c);
+        if (diff > 180) diff = 360 - diff;
+        if (diff < bestDiff) { bestDiff = diff; best = c; }
+      });
+      if (bestDiff <= 15) {
+        const rad = best * Math.PI / 180;
+        dx = Math.cos(rad) * dist; dy = Math.sin(rad) * dist;
+        angleDeg = best; snapped = true;
+      }
+    }
+  }
+  let x = last.x + dx, y = last.y + dy;
+  x = Math.round(x / 20) * 20; y = Math.round(y / 20) * 20;
+  return { x, y, angleDeg, snapped };
+}
+
+function segsIntersect(a1, a2, b1, b2) {
+  const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  const onSeg = (p, q, r) => Math.min(p.x, r.x) <= q.x && q.x <= Math.max(p.x, r.x) && Math.min(p.y, r.y) <= q.y && q.y <= Math.max(p.y, r.y);
+  const d1 = cross(b1, b2, a1), d2 = cross(b1, b2, a2), d3 = cross(a1, a2, b1), d4 = cross(a1, a2, b2);
+  if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) return true;
+  if (d1 === 0 && onSeg(b1, a1, b2)) return true;
+  if (d2 === 0 && onSeg(b1, a2, b2)) return true;
+  if (d3 === 0 && onSeg(a1, b1, a2)) return true;
+  if (d4 === 0 && onSeg(a1, b2, a2)) return true;
+  return false;
+}
+
+function wouldSelfIntersect(newPoint) {
+  const v = customShape.vertices;
+  if (v.length < 2) return false;
+  const a1 = v[v.length - 1], a2 = newPoint;
+  for (let i = 0; i < v.length - 2; i++) {
+    if (segsIntersect(a1, a2, v[i], v[i + 1])) return true;
+  }
+  return false;
+}
+
+function flashShapeWarning(msg) {
+  shapeFlashMsg = msg;
+  if (shapeFlashTimer) clearTimeout(shapeFlashTimer);
+  drawShapeCanvas();
+  shapeFlashTimer = setTimeout(() => { shapeFlashMsg = ''; drawShapeCanvas(); }, 900);
+}
+
+function handleShapePlacement(pos) {
+  const v = customShape.vertices;
+  if (v.length >= 3) {
+    const start = v[0];
+    if (Math.hypot(pos.x - start.x, pos.y - start.y) <= 20) { finalizeShapeClose(); return; }
+  }
+  let placePoint;
+  if (v.length === 0) {
+    placePoint = { x: Math.round(pos.x / 20) * 20, y: Math.round(pos.y / 20) * 20 };
+  } else {
+    shapeMouse = pos;
+    const snapped = computeSnappedPreviewPoint();
+    placePoint = { x: snapped.x, y: snapped.y };
+  }
+  if (wouldSelfIntersect(placePoint)) {
+    flashShapeWarning("Walls can't cross — try a different point.");
+    return;
+  }
+  v.push(placePoint);
+  updateWallCounter();
+  updateShapeControlsState();
+  drawShapeCanvas();
+}
+
+function onShapeClick(e) {
+  if (shapeDidDrag) { shapeDidDrag = false; return; }
+  if (customShape.closed) return;
+  handleShapePlacement(getShapePos(e));
+}
+function onShapeDblClick(e) {
+  e.preventDefault();
+  if (!customShape.closed && customShape.vertices.length >= 3) finalizeShapeClose();
+}
+function onShapeTouchStart(e) {
+  e.preventDefault();
+  if (customShape.closed) return;
+  const pos = getShapePos(e);
+  shapeMouse = pos;
+  const now = Date.now();
+  if (now - shapeLastTapTime < 350 && customShape.vertices.length >= 3) {
+    shapeLastTapTime = 0;
+    finalizeShapeClose();
+    return;
+  }
+  shapeLastTapTime = now;
+  handleShapePlacement(pos);
+}
+function onShapeTouchMove(e) {
+  e.preventDefault();
+  if (customShape.closed) return;
+  shapeMouse = getShapePos(e);
+  drawShapeCanvas();
+}
+
+function undoShapePoint() {
+  if (customShape.closed || !customShape.vertices.length) return;
+  customShape.vertices.pop();
+  updateWallCounter();
+  updateShapeControlsState();
+  drawShapeCanvas();
+}
+
+function clearShapeDrawing() {
+  if (customShape.vertices.length > 2 && !confirm('Clear your drawing?')) return;
+  customShape.vertices = [];
+  customShape.closed = false;
+  customShape.walls = [];
+  updateWallCounter();
+  updateShapeControlsState();
+  drawShapeCanvas();
+}
+
+function updateWallCounter() {
+  const el = document.getElementById('shape-wall-count');
+  if (!el) return;
+  const n = customShape.vertices.length;
+  el.textContent = `Walls: ${customShape.closed ? n : Math.max(0, n - 1)}`;
+}
+
+function updateShapeControlsState() {
+  const undoBtn = document.getElementById('shape-undo-btn');
+  const doneBtn = document.getElementById('shape-done-btn');
+  if (undoBtn) undoBtn.disabled = customShape.vertices.length === 0;
+  if (doneBtn) doneBtn.disabled = customShape.vertices.length < 3;
+}
+
+function angleDiffDeg(a, b) {
+  let diff = (a - b) * 180 / Math.PI;
+  diff = ((diff + 180) % 360 + 360) % 360 - 180;
+  return diff;
+}
+
+function defaultShelving() {
+  return { enabled: false, levels: 1, depth: '', sameHeight: true, height: '', perLevelHeights: [], lip: '', widthOverride: '', startOffset: '' };
+}
+
+function buildWallsFromVertices() {
+  const v = customShape.vertices;
+  const n = v.length;
+  const prevWalls = customShape.walls || [];
+  customShape.walls = v.map((p, i) => {
+    const next = v[(i + 1) % n];
+    const dx = next.x - p.x, dy = next.y - p.y;
+    const angleRad = Math.atan2(dy, dx);
+    const pxLength = Math.hypot(dx, dy);
+    const prev = prevWalls[i];
+    // Preserve a wall's measurement/shelving only if its geometry barely changed (Edit Shape round trip)
+    const geometryMatches = !!(prev && Math.abs(prev.pxLength - pxLength) < 8 && Math.abs(angleDiffDeg(prev.angleRad, angleRad)) < 5);
+    return {
+      id: prev ? prev.id : ('w' + i + '_' + Date.now()),
+      angleRad, pxLength,
+      lengthIn: geometryMatches ? prev.lengthIn : null,
+      label: prev ? prev.label : `Wall ${i + 1}`,
+      shelving: geometryMatches && prev.shelving ? prev.shelving : defaultShelving(),
+    };
+  });
+}
+
+function finalizeShapeClose() {
+  const v = customShape.vertices;
+  if (v.length < 3 || customShape.closed) return;
+  const last = v[v.length - 1], first = v[0];
+  for (let i = 1; i < v.length - 2; i++) {
+    if (segsIntersect(last, first, v[i], v[i + 1])) {
+      flashShapeWarning('Closing that shape would cross a wall.');
+      return;
+    }
+  }
+  customShape.closed = true;
+  buildWallsFromVertices();
+  customShape.step = 'measure';
+  renderShapeWizardStep();
+  saveSession();
+}
+
+function drawShapeCanvas() {
+  if (!shapeCanvas || !shapeCtx) return;
+  const ctx = shapeCtx, w = shapeCanvas.width, h = shapeCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  const v = customShape.vertices;
+  ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  for (let i = 0; i < v.length - 1; i++) {
+    ctx.beginPath(); ctx.moveTo(v[i].x, v[i].y); ctx.lineTo(v[i + 1].x, v[i + 1].y); ctx.stroke();
+  }
+  if (customShape.closed && v.length) {
+    ctx.beginPath(); ctx.moveTo(v[v.length - 1].x, v[v.length - 1].y); ctx.lineTo(v[0].x, v[0].y); ctx.stroke();
+  }
+
+  if (!customShape.closed && v.length && shapeMouse && shapeDragVertexIdx < 0) {
+    const preview = computeSnappedPreviewPoint();
+    if (preview) {
+      ctx.save();
+      ctx.setLineDash([6, 5]);
+      ctx.strokeStyle = '#999'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(v[v.length - 1].x, v[v.length - 1].y); ctx.lineTo(preview.x, preview.y); ctx.stroke();
+      ctx.restore();
+      if (preview.angleDeg !== null) {
+        ctx.fillStyle = preview.snapped ? '#3a6b3c' : '#888';
+        ctx.font = "bold 11px 'Space Mono', monospace";
+        ctx.textAlign = 'left';
+        ctx.fillText(`${preview.angleDeg}°`, preview.x + 10, preview.y - 10);
+      }
+    }
+  }
+
+  v.forEach((p, i) => {
+    if (i === 0 && v.length >= 3 && !customShape.closed) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(58,107,60,0.15)'; ctx.fill();
+      ctx.strokeStyle = '#3a6b3c'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#1c1c1c'; ctx.fill();
+  });
+
+  if (shapeFlashMsg) {
+    ctx.fillStyle = '#c0392b'; ctx.font = "bold 12px 'Space Mono', monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(shapeFlashMsg, w / 2, 22);
+  }
+}
+
+/* ── Step 2: Measure ──────────────────────────── */
+function renderMeasureStep() {
+  const wizard = document.getElementById('custom-shape-wizard');
+  if (!wizard) return;
+  const step = unit === 'cm' ? '0.5' : '0.25';
+  const rows = customShape.walls.map((w, i) => {
+    const color = WALL_COLORS[i % WALL_COLORS.length];
+    const dispLen = w.lengthIn != null ? dispVal(w.lengthIn) : '';
+    return `
+    <div class="wall-row">
+      <div class="wall-row-top">
+        <span class="wall-color-dot" style="background:${color}"></span>
+        <input class="wall-name-input" type="text" value="${w.label}" onchange="updateWallLabel(${i}, this.value)" />
+        <input class="wall-length-input" type="number" min="0.1" step="${step}" placeholder="length" value="${dispLen}"
+          oninput="updateWallLength(${i}, this.value)" />
+        <span class="wall-unit-label">${unit}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  wizard.innerHTML = `
+    <p class="shape-step-label">Step 2 of 4 — Wall Measurements</p>
+    <div class="shape-canvas-wrap">
+      <div class="shape-canvas-label">Enter each wall's real length — the shape redraws to scale as you type.</div>
+      <canvas id="shapeCanvas"></canvas>
+    </div>
+    <div class="wall-list">${rows}</div>
+    <div class="shape-controls-row">
+      <button type="button" class="shape-btn" onclick="backToDrawStep()">← Edit Shape</button>
+      <button type="button" class="shape-btn primary" id="measure-continue-btn" onclick="continueToDoorStep()">Continue to Door Placement →</button>
+    </div>
+  `;
+  initMeasureCanvas();
+  updateMeasureContinueState();
+}
+
+function updateWallLabel(i, value) {
+  customShape.walls[i].label = value || `Wall ${i + 1}`;
+}
+function updateWallLength(i, value) {
+  const n = parseFloat(value);
+  customShape.walls[i].lengthIn = isNaN(n) || n <= 0 ? null : toIn(n);
+  drawMeasureCanvas();
+  updateMeasureContinueState();
+}
+function updateMeasureContinueState() {
+  const btn = document.getElementById('measure-continue-btn');
+  if (!btn) return;
+  btn.disabled = !customShape.walls.every(w => w.lengthIn != null);
+}
+function backToDrawStep() {
+  customShape.step = 'draw';
+  customShape.closed = false;
+  renderShapeWizardStep();
+}
+function continueToDoorStep() {
+  if (!customShape.walls.every(w => w.lengthIn != null)) return;
+  customShape.step = 'door';
+  renderShapeWizardStep();
+  saveSession();
+}
+
+// Walks from (0,0) using each wall's drawn heading + best-known length (measured, else drawn-pixel
+// fallback), producing a topologically-faithful polygon. Shared by measure/door/shelving previews.
+// Walks every wall (including the closing one) from the origin using its drawn heading and a
+// caller-supplied length, then applies a proportional "compass rule" closure correction — the
+// same technique surveyors use to close a traverse — so the polygon still ends up visually closed
+// while EVERY wall's length (including the last) actually moves the shape when edited.
+function walkClosedPolygon(walls, lengthFn) {
+  const n = walls.length;
+  const raw = [{ x: 0, y: 0 }];
+  for (let i = 0; i < n; i++) {
+    const len = lengthFn(walls[i]);
+    const prev = raw[raw.length - 1];
+    raw.push({ x: prev.x + Math.cos(walls[i].angleRad) * len, y: prev.y + Math.sin(walls[i].angleRad) * len });
+  }
+  const errX = raw[n].x - raw[0].x, errY = raw[n].y - raw[0].y;
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const t = n > 0 ? i / n : 0;
+    pts.push({ x: raw[i].x - errX * t, y: raw[i].y - errY * t });
+  }
+  return pts;
+}
+
+function computeWallLayout(scalePxPerIn) {
+  return walkClosedPolygon(customShape.walls, wl => wl.lengthIn != null ? wl.lengthIn * scalePxPerIn : wl.pxLength);
+}
+function estimateScalePxPerIn() {
+  const measured = customShape.walls.filter(w => w.lengthIn);
+  if (!measured.length) return 10;
+  const ratios = measured.map(w => w.pxLength / w.lengthIn);
+  return ratios.reduce((a, b) => a + b, 0) / ratios.length;
+}
+function getFittedWallLayout() {
+  const scale = estimateScalePxPerIn();
+  const pts = computeWallLayout(scale);
+  const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const shapeW = Math.max(1, maxX - minX), shapeH = Math.max(1, maxY - minY);
+  const margin = 40;
+  const w = shapeCanvas.width, h = shapeCanvas.height;
+  const fitScale = Math.min((w - margin * 2) / shapeW, (h - margin * 2) / shapeH, 4);
+  const offX = w / 2 - (minX + maxX) / 2 * fitScale;
+  const offY = h / 2 - (minY + maxY) / 2 * fitScale;
+  const proj = p => ({ x: p.x * fitScale + offX, y: p.y * fitScale + offY });
+  return { pts, ppts: pts.map(proj), fitScale };
+}
+
+function initMeasureCanvas() {
+  teardownShapeCanvas();
+  shapeCanvas = document.getElementById('shapeCanvas');
+  if (!shapeCanvas) return;
+  shapeCtx = shapeCanvas.getContext('2d');
+  shapeResizeHandler = () => {
+    if (!shapeCanvas) return;
+    shapeCanvas.width = shapeCanvas.clientWidth;
+    shapeCanvas.height = shapeCanvas.clientHeight;
+    drawMeasureCanvas();
+  };
+  window.addEventListener('resize', shapeResizeHandler);
+  shapeCanvas.width = shapeCanvas.clientWidth;
+  shapeCanvas.height = shapeCanvas.clientHeight;
+  drawMeasureCanvas();
+}
+
+function drawMeasureCanvas() {
+  if (!shapeCanvas || !shapeCtx) return;
+  const ctx = shapeCtx, w = shapeCanvas.width, h = shapeCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  const { ppts } = getFittedWallLayout();
+  const n = ppts.length;
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  for (let i = 0; i < n; i++) {
+    const a = ppts[i], b = ppts[(i + 1) % n];
+    ctx.strokeStyle = WALL_COLORS[i % WALL_COLORS.length];
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2;
+    ctx.beginPath(); ctx.arc(midX, midY, 10, 0, Math.PI * 2);
+    ctx.fillStyle = '#faf8f3'; ctx.fill();
+    ctx.strokeStyle = '#c8c0b0'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#1c1c1c'; ctx.font = "bold 10px 'Space Mono', monospace";
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(i + 1, midX, midY);
+  }
+  ctx.textBaseline = 'alphabetic';
+  ppts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = '#1c1c1c'; ctx.fill(); });
+}
+
+/* ── Step 3: Door ─────────────────────────────── */
+function renderDoorStep() {
+  const wizard = document.getElementById('custom-shape-wizard');
+  if (!wizard) return;
+  wizard.innerHTML = `
+    <p class="shape-step-label">Step 3 of 4 — Door Placement</p>
+    <div class="shape-canvas-wrap">
+      <div class="shape-canvas-label">Click on a wall to place your door.</div>
+      <canvas id="shapeCanvas"></canvas>
+    </div>
+    <p class="shape-hint">${customShape.doorWallId ? `Door placed on <b>${doorWallLabel()}</b>. Click a different wall to move it.` : 'No door placed yet — click any wall segment above.'}</p>
+    <div class="shape-controls-row">
+      <button type="button" class="shape-btn" onclick="backToMeasureStep()">← Edit Measurements</button>
+      <button type="button" class="shape-btn primary" onclick="continueToShelvingStep()">Continue to Shelving →</button>
+    </div>
+  `;
+  initDoorCanvas();
+}
+function doorWallLabel() {
+  const w = customShape.walls.find(w => w.id === customShape.doorWallId);
+  return w ? w.label : '';
+}
+function backToMeasureStep() { customShape.step = 'measure'; renderShapeWizardStep(); }
+function continueToShelvingStep() { customShape.step = 'shelving'; renderShapeWizardStep(); saveSession(); }
+
+function initDoorCanvas() {
+  teardownShapeCanvas();
+  shapeCanvas = document.getElementById('shapeCanvas');
+  if (!shapeCanvas) return;
+  shapeCtx = shapeCanvas.getContext('2d');
+  shapeResizeHandler = () => {
+    if (!shapeCanvas) return;
+    shapeCanvas.width = shapeCanvas.clientWidth;
+    shapeCanvas.height = shapeCanvas.clientHeight;
+    drawDoorCanvas();
+  };
+  window.addEventListener('resize', shapeResizeHandler);
+  shapeCanvas.width = shapeCanvas.clientWidth;
+  shapeCanvas.height = shapeCanvas.clientHeight;
+  shapeCanvas.addEventListener('click', onDoorCanvasClick);
+  drawDoorCanvas();
+}
+
+function onDoorCanvasClick(e) {
+  const pos = getShapePos(e);
+  const { ppts } = getFittedWallLayout();
+  const n = ppts.length;
+  let bestIdx = -1, bestDist = 18, bestT = 0.5;
+  for (let i = 0; i < n; i++) {
+    const a = ppts[i], b = ppts[(i + 1) % n];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const lenSq = dx * dx + dy * dy || 1;
+    let t = ((pos.x - a.x) * dx + (pos.y - a.y) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    const px = a.x + t * dx, py = a.y + t * dy;
+    const dist = Math.hypot(pos.x - px, pos.y - py);
+    if (dist < bestDist) { bestDist = dist; bestIdx = i; bestT = t; }
+  }
+  if (bestIdx < 0) return;
+  let doorWidthStr = document.getElementById('door-width').value;
+  if (!doorWidthStr) {
+    doorWidthStr = prompt(`Enter your door width (in ${unit}) before placing it:`);
+    if (!doorWidthStr) return;
+    document.getElementById('door-width').value = doorWidthStr;
+  }
+  const wall = customShape.walls[bestIdx];
+  customShape.doorWallId = wall.id;
+  customShape.doorOffsetIn = bestT * wall.lengthIn;
+  renderDoorStep();
+  saveSession();
+}
+
+function drawDoorCanvas() {
+  if (!shapeCanvas || !shapeCtx) return;
+  const ctx = shapeCtx, w = shapeCanvas.width, h = shapeCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  const { ppts } = getFittedWallLayout();
+  const n = ppts.length;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < n; i++) {
+    const a = ppts[i], b = ppts[(i + 1) % n];
+    const wall = customShape.walls[i];
+    const isDoorWall = wall.id === customShape.doorWallId && wall.lengthIn;
+    if (isDoorWall) {
+      const doorWidthIn = toIn(parseFloat(document.getElementById('door-width').value) || 0);
+      const t = Math.min(1, Math.max(0, customShape.doorOffsetIn / wall.lengthIn));
+      const halfGapT = Math.min(0.45, (doorWidthIn / 2) / wall.lengthIn);
+      const t0 = Math.max(0, t - halfGapT), t1 = Math.min(1, t + halfGapT);
+      const seg = (ta, tb) => ({ x0: a.x + (b.x - a.x) * ta, y0: a.y + (b.y - a.y) * ta, x1: a.x + (b.x - a.x) * tb, y1: a.y + (b.y - a.y) * tb });
+      ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 4;
+      let s = seg(0, t0); ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(s.x1, s.y1); ctx.stroke();
+      s = seg(t1, 1); ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(s.x1, s.y1); ctx.stroke();
+      ctx.strokeStyle = '#3a6b3c'; ctx.setLineDash([4, 4]); ctx.lineWidth = 2;
+      s = seg(t0, t1); ctx.beginPath(); ctx.moveTo(s.x0, s.y0); ctx.lineTo(s.x1, s.y1); ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      ctx.strokeStyle = '#1c1c1c'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+  }
+  ppts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = '#1c1c1c'; ctx.fill(); });
+}
+
+/* ── Step 4: Shelving ─────────────────────────── */
+// Ephemeral (not saved) — which walls have the manual override fields expanded. Resets each session,
+// which is fine since it's just a UI convenience, not shelving data.
+let shelvingCustomizeOpen = new Set();
+function toggleShelvingCustomize(i) {
+  if (shelvingCustomizeOpen.has(i)) shelvingCustomizeOpen.delete(i); else shelvingCustomizeOpen.add(i);
+  renderShelvingStep();
+}
+function clearShelvingOverride(i) {
+  customShape.walls[i].shelving.widthOverride = '';
+  customShape.walls[i].shelving.startOffset = '';
+  renderShelvingStep();
+}
+
+function renderShelvingStep() {
+  const wizard = document.getElementById('custom-shape-wizard');
+  if (!wizard) return;
+  const step = unit === 'cm' ? '0.5' : '0.25';
+  const overlapSet = computeShelvingOverlaps2D();
+  const rows = customShape.walls.map((w, i) => {
+    const color = WALL_COLORS[i % WALL_COLORS.length];
+    const sh = w.shelving;
+    const hasNextWall = i < customShape.walls.length - 1;
+    const isDoorWall = w.id === customShape.doorWallId;
+    const run = computeAutoShelfRun(i);
+    const prevWall = customShape.walls[(i - 1 + customShape.walls.length) % customShape.walls.length];
+    const tooSmall = sh.enabled && run.widthIn < 1;
+    const runNote = !sh.enabled ? '' : tooSmall
+      ? `⚠ This wall is too short for shelving once it yields to ${prevWall.label}'s shelf depth. Reduce Shelf Depth on ${prevWall.label} (or this wall), or use Customize below to set your own Width Override.`
+      : run.trimmedByIn > 0
+        ? `Shelf run: <b>${dispVal(run.widthIn)}${unit}</b> — auto-trimmed ${dispVal(run.trimmedByIn)}${unit} from the corner so it doesn't collide with ${prevWall.label}'s shelving.`
+        : `Shelf run: <b>${dispVal(run.widthIn)}${unit}</b> (the full wall — no adjustment needed).`;
+    const detail = sh.enabled ? `
+      <div class="shelving-fields">
+        <div class="field"><span>Levels</span><input type="number" min="1" max="6" step="1" value="${sh.levels}" onchange="updateShelving(${i},'levels',this.value)" /></div>
+        <div class="field"><span>Shelf Depth (${unit})</span><input type="number" min="0.1" step="${step}" value="${sh.depth}" oninput="updateShelving(${i},'depth',this.value)" /></div>
+        <div class="field"><span>Lip (${unit})</span><input type="number" min="0" step="${step}" value="${sh.lip}" oninput="updateShelving(${i},'lip',this.value)" placeholder="opt." /></div>
+      </div>
+      <p class="shape-hint" style="margin:0.5rem 0 0">
+        ${tooSmall ? `<span class="shape-warning-flash">${runNote}</span>` : runNote}
+        ${overlapSet.has(i) ? ` <span class="shape-warning-flash">⚠ Still overlaps another wall's shelving — try Customize below.</span>` : ''}
+        <button type="button" class="legend-clear-btn" style="margin-left:0.4rem" onclick="toggleShelvingCustomize(${i})">${shelvingCustomizeOpen.has(i) ? 'Hide manual override' : 'Customize'}</button>
+      </p>
+      ${shelvingCustomizeOpen.has(i) ? `
+        <div class="shelving-fields" style="margin-top:0.4rem">
+          <div class="field"><span>Width Override (${unit})</span><input type="number" min="0.1" step="${step}" value="${sh.widthOverride}" oninput="updateShelving(${i},'widthOverride',this.value)" placeholder="auto (${dispVal(run.widthIn)}${unit})" /></div>
+          <div class="field"><span>Start Offset (${unit})</span><input type="number" min="0" step="${step}" value="${sh.startOffset}" oninput="updateShelving(${i},'startOffset',this.value)" placeholder="auto (${dispVal(run.startOffsetIn)}${unit})" /></div>
+        </div>
+        <p class="shape-hint">Width Override replaces the auto-trimmed length above; Start Offset moves that shorter run away from this wall's start point.
+          ${sh.widthOverride ? `<button type="button" class="legend-clear-btn" onclick="clearShelvingOverride(${i})">↺ Reset to auto</button>` : ''}
+        </p>` : ''}
+      <div class="fill-toggle" style="margin-top:0.4rem">
+        <button type="button" class="fill-btn ${sh.sameHeight ? 'active' : ''}" onclick="setShelvingHeightMode(${i},true)">Same height for all</button>
+        <button type="button" class="fill-btn ${!sh.sameHeight ? 'active' : ''}" onclick="setShelvingHeightMode(${i},false)">Different heights</button>
+      </div>
+      ${sh.sameHeight
+        ? `<div class="field" style="margin-top:0.4rem;max-width:160px"><span>Shelf Height (${unit})</span><input type="number" min="0.1" step="${step}" value="${sh.height}" oninput="updateShelving(${i},'height',this.value)" /></div>`
+        : `<div class="shelving-fields" style="margin-top:0.4rem">${Array.from({ length: sh.levels }).map((_, lvl) => `
+            <div class="field"><span>Level ${lvl + 1} Height (${unit})</span><input type="number" min="0.1" step="${step}" value="${sh.perLevelHeights[lvl] || ''}" oninput="updateShelvingLevelHeight(${i},${lvl},this.value)" /></div>
+          `).join('')}</div>`}
+      ${hasNextWall ? `<button type="button" class="shape-btn" style="margin-top:0.6rem" onclick="copyShelvingToNextWall(${i})">↓ Same shelving layout for ${customShape.walls[i+1].label}</button>` : ''}
+    ` : '';
+    return `
+    <div class="wall-row">
+      <div class="wall-row-top">
+        <span class="wall-color-dot" style="background:${color}"></span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;color:#1c1c1c;flex:1">${w.label}${isDoorWall ? ' <span style="color:#aaa;font-weight:400">(door wall)</span>' : ''}</span>
+        <span class="wall-unit-label">${dispVal(w.lengthIn)}${unit}</span>
+        <div class="wall-shelving-check">
+          <input type="checkbox" id="shv-${i}" ${sh.enabled ? 'checked' : ''} onchange="toggleWallShelving(${i}, this.checked)" />
+          <label for="shv-${i}">Has shelving</label>
+        </div>
+      </div>
+      ${detail}
+    </div>`;
+  }).join('');
+
+  wizard.innerHTML = `
+    <p class="shape-step-label">Step 4 of 4 — Assign Shelving</p>
+    <div class="shape-canvas-wrap">
+      <div class="shape-canvas-label">Walls with shelving are highlighted in gold — red means two walls' shelving still overlaps.</div>
+      <canvas id="shapeCanvas"></canvas>
+    </div>
+    <div class="instance-block">
+      <p class="instance-hint" style="margin-bottom:0.5rem">Most pantries have shelving on every wall except the door — set it up once here and it applies everywhere. Corners are trimmed automatically so shelves never collide.</p>
+      <div class="shelving-fields">
+        <div class="field"><span>Levels</span><input type="number" min="1" max="6" step="1" id="quick-shelf-levels" value="1" /></div>
+        <div class="field"><span>Shelf Depth (${unit})</span><input type="number" min="0.1" step="${step}" id="quick-shelf-depth" placeholder="e.g. 14" /></div>
+        <div class="field"><span>Shelf Height (${unit})</span><input type="number" min="0.1" step="${step}" id="quick-shelf-height" placeholder="e.g. 12" /></div>
+        <div class="field"><span>Lip (${unit})</span><input type="number" min="0" step="${step}" id="quick-shelf-lip" placeholder="opt." /></div>
+      </div>
+      <p class="shape-hint" id="quick-shelf-error"></p>
+      <button type="button" class="shape-btn primary" style="margin-top:0.5rem" onclick="applyShelvingToAllWalls()">Shelve every wall except the door →</button>
+    </div>
+    ${overlapSet.size ? `<p class="shape-hint" style="margin-top:0.75rem"><span class="shape-warning-flash">⚠ ${overlapSet.size} wall${overlapSet.size!==1?'s':''} still overlap another wall's shelving — see the notes on each highlighted wall below.</span></p>` : ''}
+    <div class="wall-list" style="margin-top:0.85rem">${rows}</div>
+    <p class="shape-hint">Once at least one wall has shelving, scroll down and click "Find Organizers" as usual.</p>
+    <div class="shape-controls-row">
+      <button type="button" class="shape-btn" onclick="backToDoorStepFromShelving()">← Door Placement</button>
+    </div>
+  `;
+  initShelvingCanvas();
+}
+function backToDoorStepFromShelving() { customShape.step = 'door'; renderShapeWizardStep(); }
+
+// One-click setup for the common case: shelving wraps every wall except the door. Corner overlaps are
+// handled automatically by computeAutoShelfRun(), so this needs no per-wall sizing input at all.
+function applyShelvingToAllWalls() {
+  const errEl = document.getElementById('quick-shelf-error');
+  const depth = document.getElementById('quick-shelf-depth').value;
+  const height = document.getElementById('quick-shelf-height').value;
+  const lip = document.getElementById('quick-shelf-lip').value;
+  const levels = Math.max(1, parseInt(document.getElementById('quick-shelf-levels').value) || 1);
+  if (!depth || !height) {
+    if (errEl) errEl.innerHTML = '<span class="shape-warning-flash">Enter a shelf depth and height first.</span>';
+    return;
+  }
+  customShape.walls.forEach(w => {
+    if (customShape.doorWallId && w.id === customShape.doorWallId) return;
+    w.shelving = { enabled: true, levels, depth, sameHeight: true, height, perLevelHeights: [], lip: lip || '', widthOverride: '', startOffset: '' };
+  });
+  renderShelvingStep();
+  updateShelfMeasurementsCardVisibility();
+  saveSession();
+}
+
+function toggleWallShelving(i, checked) {
+  customShape.walls[i].shelving.enabled = checked;
+  renderShelvingStep();
+  updateShelfMeasurementsCardVisibility();
+  saveSession();
+}
+function updateShelving(i, field, value) {
+  customShape.walls[i].shelving[field] = value;
+  // Depth/width/offset changes can change who overlaps whom (and the auto-trim of the NEXT wall,
+  // since it depends on this wall's depth), and levels changes which fields show — simplest to just
+  // re-render the whole step so the auto-trim notes and overlap warnings stay accurate everywhere.
+  if (field === 'levels' || field === 'widthOverride' || field === 'depth' || field === 'startOffset') renderShelvingStep();
+  else drawShelvingCanvas();
+}
+function setShelvingHeightMode(i, same) {
+  customShape.walls[i].shelving.sameHeight = same;
+  renderShelvingStep();
+}
+function updateShelvingLevelHeight(i, lvl, value) {
+  customShape.walls[i].shelving.perLevelHeights[lvl] = value;
+}
+
+// Copies levels/depth/height config/lip to the next wall so the user doesn't have to re-enter matching
+// shelving by hand — width override/start offset are wall-specific (position within THAT wall) so those
+// reset to auto rather than copying verbatim.
+function copyShelvingToNextWall(i) {
+  const walls = customShape.walls;
+  if (i + 1 >= walls.length) return;
+  const src = walls[i].shelving;
+  walls[i + 1].shelving = {
+    enabled: true,
+    levels: src.levels,
+    depth: src.depth,
+    sameHeight: src.sameHeight,
+    height: src.height,
+    perLevelHeights: [...src.perLevelHeights],
+    lip: src.lip,
+    widthOverride: '',
+    startOffset: '',
+  };
+  renderShelvingStep();
+  updateShelfMeasurementsCardVisibility();
+  saveSession();
+}
+
+function initShelvingCanvas() {
+  teardownShapeCanvas();
+  shapeCanvas = document.getElementById('shapeCanvas');
+  if (!shapeCanvas) return;
+  shapeCtx = shapeCanvas.getContext('2d');
+  shapeResizeHandler = () => {
+    if (!shapeCanvas) return;
+    shapeCanvas.width = shapeCanvas.clientWidth;
+    shapeCanvas.height = shapeCanvas.clientHeight;
+    drawShelvingCanvas();
+  };
+  window.addEventListener('resize', shapeResizeHandler);
+  shapeCanvas.width = shapeCanvas.clientWidth;
+  shapeCanvas.height = shapeCanvas.clientHeight;
+  drawShelvingCanvas();
+}
+
+function drawShelvingCanvas() {
+  if (!shapeCanvas || !shapeCtx) return;
+  const ctx = shapeCtx, w = shapeCanvas.width, h = shapeCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 1;
+  for (let x = 0; x < w; x += 20) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+  for (let y = 0; y < h; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+  const { ppts } = getFittedWallLayout();
+  const n = ppts.length;
+  const cx = ppts.reduce((a, p) => a + p.x, 0) / n, cy = ppts.reduce((a, p) => a + p.y, 0) / n;
+  const overlapSet = computeShelvingOverlaps2D();
+  ctx.lineCap = 'round';
+  for (let i = 0; i < n; i++) {
+    const a = ppts[i], b = ppts[(i + 1) % n];
+    const wall = customShape.walls[i];
+    const shelved = wall.shelving && wall.shelving.enabled;
+    const overlapping = shelved && overlapSet.has(i);
+    ctx.strokeStyle = overlapping ? '#ff4d4d' : shelved ? '#f0a500' : '#1c1c1c';
+    ctx.lineWidth = shelved ? 6 : 3;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    if (shelved) {
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      let nx = -(b.y - a.y), ny = (b.x - a.x);
+      const nlen = Math.hypot(nx, ny) || 1; nx /= nlen; ny /= nlen;
+      if ((nx * (cx - mx) + ny * (cy - my)) < 0) { nx = -nx; ny = -ny; }
+      ctx.strokeStyle = overlapping ? 'rgba(255,77,77,0.6)' : 'rgba(240,165,0,0.55)';
+      ctx.setLineDash([3, 3]); ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(mx, my); ctx.lineTo(mx + nx * 18, my + ny * 18); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  ppts.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fillStyle = '#1c1c1c'; ctx.fill(); });
+}
+
+/* ── Shelf-vs-shelf overlap detection (floor-plan proxy, used by the shelving step) ── */
+// Generic oriented-rectangle helpers — reused as-is by the 3D renderer for the real (height-aware) check.
+function orientedRectCorners(cx, cy, headingRad, lengthAlong, depthAcross) {
+  const ux = Math.cos(headingRad), uy = Math.sin(headingRad);
+  const px = -uy, py = ux;
+  const hl = lengthAlong / 2, hd = depthAcross / 2;
+  return [
+    { x: cx - ux*hl - px*hd, y: cy - uy*hl - py*hd },
+    { x: cx + ux*hl - px*hd, y: cy + uy*hl - py*hd },
+    { x: cx + ux*hl + px*hd, y: cy + uy*hl + py*hd },
+    { x: cx - ux*hl + px*hd, y: cy - uy*hl + py*hd },
+  ];
+}
+// eps lets two rectangles that are merely touching at a shared edge (e.g. two auto-trimmed shelf runs
+// that meet exactly at a corner) count as separated rather than "overlapping" — without it, floating
+// point boundary-touching from a perfect auto-trim gets misclassified as a real collision.
+function orientedRectsOverlap(rectA, rectB, eps) {
+  eps = eps || 0;
+  for (const rect of [rectA, rectB]) {
+    for (let i = 0; i < 4; i++) {
+      const p1 = rect[i], p2 = rect[(i + 1) % 4];
+      const nx = -(p2.y - p1.y), ny = (p2.x - p1.x);
+      const len = Math.hypot(nx, ny) || 1;
+      const ax = nx / len, ay = ny / len;
+      let minA = Infinity, maxA = -Infinity, minB = Infinity, maxB = -Infinity;
+      rectA.forEach(p => { const d = p.x*ax + p.y*ay; if (d < minA) minA = d; if (d > maxA) maxA = d; });
+      rectB.forEach(p => { const d = p.x*ax + p.y*ay; if (d < minB) minB = d; if (d > maxB) maxB = d; });
+      if (maxA <= minB + eps || maxB <= minA + eps) return false;
+    }
+  }
+  return true;
+}
+
+// Computes where a wall's shelf run starts and how wide it is. If the user has manually set a Width
+// Override, that wins outright (power-user escape hatch, tucked behind "Customize" in the UI).
+// Otherwise the run auto-trims itself: it yields to the depth of the PREVIOUS wall's shelving (if any)
+// at their shared corner, so two walls meeting at a corner never collide without any manual input —
+// this is what makes "shelving wraps around every wall" work with almost no per-wall configuration.
+function computeAutoShelfRun(wallIdx) {
+  const walls = customShape.walls;
+  const n = walls.length;
+  const w = walls[wallIdx];
+  const sh = w.shelving;
+  if (!sh || !sh.enabled || !w.lengthIn) return { startOffsetIn: 0, widthIn: 0, auto: true, trimmedByIn: 0 };
+  if (sh.widthOverride) {
+    return { startOffsetIn: toIn(parseFloat(sh.startOffset) || 0), widthIn: toIn(parseFloat(sh.widthOverride) || 0), auto: false, trimmedByIn: 0 };
+  }
+  const prev = walls[(wallIdx - 1 + n) % n];
+  const startInsetIn = (prev.shelving && prev.shelving.enabled) ? toIn(parseFloat(prev.shelving.depth) || 0) : 0;
+  const widthIn = Math.max(0, w.lengthIn - startInsetIn);
+  return { startOffsetIn: startInsetIn, widthIn, auto: true, trimmedByIn: startInsetIn };
+}
+
+// Footprints in *raw* (unfitted) layout space — deliberately not getFittedWallLayout(), so this works
+// even before the canvas exists (e.g. while building the wall list HTML) since overlap is a purely
+// geometric relationship that scaling/centering for display doesn't change.
+function computeShelvingFootprints2D() {
+  const pxPerIn = estimateScalePxPerIn();
+  const pts = computeWallLayout(pxPerIn);
+  const n = pts.length;
+  if (!n) return [];
+  const cx = pts.reduce((a, p) => a + p.x, 0) / n, cy = pts.reduce((a, p) => a + p.y, 0) / n;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const wall = customShape.walls[i];
+    const sh = wall.shelving;
+    if (!sh || !sh.enabled || !wall.lengthIn) continue;
+    const a = pts[i], b = pts[(i + 1) % n];
+    const heading = Math.atan2(b.y - a.y, b.x - a.x);
+    const ux = Math.cos(heading), uy = Math.sin(heading);
+    let nx = -uy, ny = ux;
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    if ((nx * (cx - mx) + ny * (cy - my)) < 0) { nx = -nx; ny = -ny; }
+    const shelfDepthIn = toIn(parseFloat(sh.depth) || 0);
+    const run = computeAutoShelfRun(i);
+    const runStartX = a.x + ux * (run.startOffsetIn * pxPerIn), runStartY = a.y + uy * (run.startOffsetIn * pxPerIn);
+    const shelfWidthPx = run.widthIn * pxPerIn, shelfDepthPx = shelfDepthIn * pxPerIn;
+    const boardCx = runStartX + ux * (shelfWidthPx / 2) + nx * (shelfDepthPx / 2);
+    const boardCy = runStartY + uy * (shelfWidthPx / 2) + ny * (shelfDepthPx / 2);
+    out.push({ wallIdx: i, corners: orientedRectCorners(boardCx, boardCy, heading, shelfWidthPx, shelfDepthPx) });
+  }
+  return out;
+}
+function computeShelvingOverlaps2D() {
+  const footprints = computeShelvingFootprints2D();
+  const overlapSet = new Set();
+  const epsPx = estimateScalePxPerIn() * 0.5; // ~half an inch of tolerance for boundary-touching auto-trims
+  for (let i = 0; i < footprints.length; i++) {
+    for (let j = i + 1; j < footprints.length; j++) {
+      if (orientedRectsOverlap(footprints[i].corners, footprints[j].corners, epsPx)) {
+        overlapSet.add(footprints[i].wallIdx);
+        overlapSet.add(footprints[j].wallIdx);
+      }
+    }
+  }
+  return overlapSet;
+}
+
+/* ══ INTEGRATION WITH MATCHING ═════════════════════════════ */
+function isUsingCustomShapeShelving() {
+  return pantryType === 'walkin' && customShape.active && customShape.closed &&
+    customShape.walls.some(w => w.shelving && w.shelving.enabled);
+}
+
+function deriveShelvesFromCustomShape() {
+  const list = [];
+  customShape.walls.forEach((w, wi) => {
+    if (!w.shelving || !w.shelving.enabled) return;
+    const levels = Math.max(1, parseInt(w.shelving.levels) || 1);
+    const widthDisp = dispVal(computeAutoShelfRun(wi).widthIn);
+    for (let lvl = 0; lvl < levels; lvl++) {
+      const heightVal = w.shelving.sameHeight ? w.shelving.height : (w.shelving.perLevelHeights[lvl] || '');
+      list.push({
+        width: String(widthDisp), depth: w.shelving.depth, height: heightVal, lip_height: w.shelving.lip || '',
+        wallId: w.id, wallLabel: w.label, levelIndex: lvl,
+      });
+    }
+  });
+  return list;
+}
+
+// Snapshot of the room polygon (in real inches, centered on its centroid) used by the 3D renderer —
+// built once per findOrganizers() run so drawPantry() doesn't need to know about the drawing canvas at all.
+function buildRoomShapeForRender() {
+  const walls = customShape.walls;
+  const n = walls.length;
+  const pts = walkClosedPolygon(walls, w => w.lengthIn || 0).map(p => ({ x: p.x, z: p.y }));
+  const cx = pts.reduce((a, p) => a + p.x, 0) / n, cz = pts.reduce((a, p) => a + p.z, 0) / n;
+  const centered = pts.map(p => ({ x: p.x - cx, z: p.z - cz }));
+  const ceilingIn = toIn(parseFloat(document.getElementById('room-height').value)) || 96;
+  const wallsOut = walls.map((w, i) => {
+    const p0 = centered[i], p1 = centered[(i + 1) % n];
+    return { id: w.id, label: w.label, x0: p0.x, z0: p0.z, x1: p1.x, z1: p1.z, lengthIn: w.lengthIn || 0, shelving: w.shelving };
+  });
+  return { vertices: centered, walls: wallsOut, ceilingIn, doorWallId: customShape.doorWallId, doorOffsetIn: customShape.doorOffsetIn };
+}
+</script>
+
+<script>
+/* ══ CUSTOM SHAPE — 3D ROOM RENDERER ═══════════════════════
+   Reuses pt()/drawFace()/drawCylinder()/color helpers from the main 3D renderer script — only the
+   box primitive needed generalizing, since walls/shelves/products can sit at any angle here.
+═══════════════════════════════════════════════════════════ */
+
+// Draws a lengthAlong × depthAcross × height box centered at (cx,cz) and rotated by headingRad in the
+// XZ plane. Generalizes drawBox() (which is axis-aligned only) for walls/shelves/products on angled walls.
+function drawOrientedBox(cx, cz, headingRad, lengthAlong, depthAcross, baseY, height, faceColor, edgeColor) {
+  if (lengthAlong <= 0 || depthAcross <= 0 || height <= 0) return;
+  const ux = Math.cos(headingRad), uz = Math.sin(headingRad);
+  const px = -uz, pz = ux;
+  const hl = lengthAlong / 2, hd = depthAcross / 2;
+  const corners = [
+    { x: cx - ux*hl - px*hd, z: cz - uz*hl - pz*hd },
+    { x: cx + ux*hl - px*hd, z: cz + uz*hl - pz*hd },
+    { x: cx + ux*hl + px*hd, z: cz + uz*hl + pz*hd },
+    { x: cx - ux*hl + px*hd, z: cz - uz*hl + pz*hd },
+  ];
+  const bottom = corners.map(c => pt(c.x, baseY, c.z));
+  const top = corners.map(c => pt(c.x, baseY + height, c.z));
+  drawFace(bottom, darken(faceColor, 15), edgeColor);
+  drawFace(top, lighten(faceColor, 40), edgeColor);
+  const sideShades = [-20, -30, 10, -10];
+  for (let i = 0; i < 4; i++) {
+    const j = (i + 1) % 4;
+    drawFace([bottom[i], bottom[j], top[j], top[i]], shiftColor(faceColor, sideShades[i]), edgeColor);
+  }
+}
+
+function drawCustomPantry() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#faf8f3'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = 'rgba(160,150,130,0.18)'; ctx.lineWidth = 0.5;
+  for (let x = 0; x < canvas.width; x += 16) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+  for (let y = 0; y < canvas.height; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+
+  const room = lastRoomShape;
+  if (!room || !room.walls.length) return;
+
+  const xs = room.vertices.map(v => v.x), zs = room.vertices.map(v => v.z);
+  const roomW = Math.max(...xs) - Math.min(...xs) || 1;
+  const roomD = Math.max(...zs) - Math.min(...zs) || 1;
+  const roomCx = xs.reduce((a,b) => a+b, 0) / xs.length, roomCz = zs.reduce((a,b) => a+b, 0) / zs.length;
+  const SCALE = Math.min(canvas.width, canvas.height) / Math.max(roomW, roomD * 1.5, room.ceilingIn) * 0.32;
+
+  const floorY = -room.ceilingIn * SCALE / 2;
+  const wallHeight3D = room.ceilingIn * SCALE;
+  const wallThk = 3 * SCALE;
+  const doorWidthIn = toIn(parseFloat(document.getElementById('door-width').value) || 0);
+
+  // Floor
+  const floorPts = room.vertices.map(v => pt(v.x * SCALE, floorY, v.z * SCALE));
+  drawFace(floorPts, '#e8e2d0', '#c8c0b0');
+
+  // Walls (with a gap for the door, if placed)
+  let doorGapCenterPt = null;
+  room.walls.forEach(w => {
+    const x0 = w.x0*SCALE, z0 = w.z0*SCALE, x1 = w.x1*SCALE, z1 = w.z1*SCALE;
+    const heading = Math.atan2(z1 - z0, x1 - x0);
+    const isDoorWall = w.id === room.doorWallId && w.lengthIn;
+    if (isDoorWall) {
+      const t = Math.min(1, Math.max(0, room.doorOffsetIn / w.lengthIn));
+      const halfGapT = Math.min(0.45, (doorWidthIn / 2) / w.lengthIn);
+      const t0 = Math.max(0, t - halfGapT), t1 = Math.min(1, t + halfGapT);
+      const at = (ta) => ({ x: x0 + (x1-x0)*ta, z: z0 + (z1-z0)*ta });
+      [[0, t0], [t1, 1]].forEach(([ta, tb]) => {
+        const a = at(ta), b = at(tb);
+        const len = Math.hypot(b.x-a.x, b.z-a.z);
+        if (len > 0.5) drawOrientedBox((a.x+b.x)/2, (a.z+b.z)/2, heading, len, wallThk, floorY, wallHeight3D, '#ded7c4', '#a89f88');
+      });
+      const dc = at((t0+t1)/2);
+      doorGapCenterPt = pt(dc.x, floorY, dc.z);
+    } else {
+      const len = Math.hypot(x1-x0, z1-z0);
+      drawOrientedBox((x0+x1)/2, (z0+z1)/2, heading, len, wallThk, floorY, wallHeight3D, '#ded7c4', '#a89f88');
+    }
+  });
+
+  // Pre-pass: flag shelf levels on DIFFERENT walls whose boards physically collide (e.g. two walls'
+  // shelves both reaching into a shared corner) — same-wall levels are stacked vertically by
+  // construction and never need checking against each other.
+  const shelfLevels = [];
+  room.walls.forEach((w, wi) => {
+    const sh = w.shelving;
+    if (!sh || !sh.enabled || !w.lengthIn) return;
+    const heading = Math.atan2(w.z1 - w.z0, w.x1 - w.x0);
+    const ux = Math.cos(heading), uz = Math.sin(heading);
+    let nx = -Math.sin(heading), nz = Math.cos(heading);
+    const midx = (w.x0 + w.x1) / 2, midz = (w.z0 + w.z1) / 2;
+    if ((nx * (roomCx - midx) + nz * (roomCz - midz)) < 0) { nx = -nx; nz = -nz; }
+    const shelfDepthIn = toIn(parseFloat(sh.depth) || 0);
+    const run = computeAutoShelfRun(wi);
+    const shelfWidthIn = run.widthIn, startOffsetIn = run.startOffsetIn;
+    const runStartXIn = w.x0 + ux * startOffsetIn, runStartZIn = w.z0 + uz * startOffsetIn;
+    const boardCenterXIn = runStartXIn + ux * (shelfWidthIn/2) + nx * (shelfDepthIn/2);
+    const boardCenterZIn = runStartZIn + uz * (shelfWidthIn/2) + nz * (shelfDepthIn/2);
+    const wallResults = lastShelfResults
+      .map((r, idx) => ({ r, idx }))
+      .filter(o => o.r.wallId === w.id)
+      .sort((a, b) => a.r.levelIndex - b.r.levelIndex);
+    let floorClearIn = 0;
+    wallResults.forEach(({ r: shelfData, idx }) => {
+      const boardThkIn = 0.6;
+      shelfLevels.push({
+        wallId: w.id, idx, heading, boardCenterXIn, boardCenterZIn, shelfWidthIn, shelfDepthIn,
+        yBottomIn: floorClearIn, yTopIn: floorClearIn + boardThkIn + shelfData.uh,
+      });
+      floorClearIn += shelfData.rawH;
+    });
+  });
+  const badShelfKeys = new Set();
+  for (let i = 0; i < shelfLevels.length; i++) {
+    for (let j = i + 1; j < shelfLevels.length; j++) {
+      const a = shelfLevels[i], b = shelfLevels[j];
+      if (a.wallId === b.wallId) continue;
+      if (a.yBottomIn >= b.yTopIn || b.yBottomIn >= a.yTopIn) continue; // no vertical overlap -> can't collide
+      const rectA = orientedRectCorners(a.boardCenterXIn, a.boardCenterZIn, a.heading, a.shelfWidthIn, a.shelfDepthIn);
+      const rectB = orientedRectCorners(b.boardCenterXIn, b.boardCenterZIn, b.heading, b.shelfWidthIn, b.shelfDepthIn);
+      if (orientedRectsOverlap(rectA, rectB, 0.5)) { badShelfKeys.add(a.idx); badShelfKeys.add(b.idx); }
+    }
+  }
+
+  // Shelves + products, one wall at a time
+  let anyBad = false;
+  room.walls.forEach((w, wi) => {
+    const sh = w.shelving;
+    if (!sh || !sh.enabled || !w.lengthIn) return;
+    const heading = Math.atan2(w.z1 - w.z0, w.x1 - w.x0);
+    const ux = Math.cos(heading), uz = Math.sin(heading);
+    let nx = -Math.sin(heading), nz = Math.cos(heading); // perpendicular; flipped below to point into the room
+    const midx = (w.x0 + w.x1) / 2, midz = (w.z0 + w.z1) / 2;
+    if ((nx * (roomCx - midx) + nz * (roomCz - midz)) < 0) { nx = -nx; nz = -nz; }
+
+    const shelfDepthIn = toIn(parseFloat(sh.depth) || 0);
+    const lipIn = toIn(parseFloat(sh.lip) || 0);
+    const run = computeAutoShelfRun(wi);
+    const shelfWidthIn = run.widthIn, startOffsetIn = run.startOffsetIn;
+    const runStartXIn = w.x0 + ux * startOffsetIn, runStartZIn = w.z0 + uz * startOffsetIn;
+    const boardCenterXIn = runStartXIn + ux * (shelfWidthIn/2) + nx * (shelfDepthIn/2);
+    const boardCenterZIn = runStartZIn + uz * (shelfWidthIn/2) + nz * (shelfDepthIn/2);
+
+    const wallResults = lastShelfResults
+      .map((r, idx) => ({ r, idx }))
+      .filter(o => o.r.wallId === w.id)
+      .sort((a, b) => a.r.levelIndex - b.r.levelIndex);
+
+    let floorClearIn = 0;
+    wallResults.forEach(({ r: shelfData, idx }) => {
+      const boardThkIn = 0.6;
+      const shelfBaseY = floorY + floorClearIn * SCALE;
+      const boardHeight3D = boardThkIn * SCALE;
+      const shelfBad = badShelfKeys.has(idx);
+      if (shelfBad) anyBad = true;
+      drawOrientedBox(boardCenterXIn*SCALE, boardCenterZIn*SCALE, heading, shelfWidthIn*SCALE, shelfDepthIn*SCALE,
+        shelfBaseY, boardHeight3D, shelfBad ? '#ff4d4d' : '#f0a500', shelfBad ? '#a30000' : '#c98600');
+
+      const sels = selectedProducts[idx] || [];
+      const boxes = sels.map(sel => {
+        const prod = PRODUCTS.find(p => p.id === sel.id);
+        if (!prod) return null;
+        const pwIn = prod.dimensions.width, pdIn = prod.dimensions.depth, phIn = prod.dimensions.height;
+        const maxAlongIn = Math.max(0, shelfWidthIn - pwIn);
+        const alongIn = (sel.x ?? 0) * maxAlongIn;
+        const maxAcrossIn = Math.max(0, shelfDepthIn - pdIn);
+        const acrossIn = (sel.z ?? 0.5) * maxAcrossIn;
+        const outOfBounds = alongIn < -0.01 || (alongIn+pwIn) > shelfWidthIn+0.01 || acrossIn < -0.01 || (acrossIn+pdIn) > shelfDepthIn+0.01;
+        return { prod, alongIn, acrossIn, pwIn, pdIn, phIn, outOfBounds, overlaps: false };
+      }).filter(Boolean);
+
+      const eps = 0.2;
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const a = boxes[i], b = boxes[j];
+          const ax0=a.alongIn+eps, ax1=a.alongIn+a.pwIn-eps, az0=a.acrossIn+eps, az1=a.acrossIn+a.pdIn-eps;
+          const bx0=b.alongIn+eps, bx1=b.alongIn+b.pwIn-eps, bz0=b.acrossIn+eps, bz1=b.acrossIn+b.pdIn-eps;
+          if (ax0<bx1 && ax1>bx0 && az0<bz1 && az1>bz0) { a.overlaps = true; b.overlaps = true; }
+        }
+      }
+
+      boxes.forEach(b => {
+        const bad = b.overlaps || b.outOfBounds;
+        if (bad) anyBad = true;
+        const color = bad ? '#ff4d4d' : (b.prod.color || '#cce8ff');
+        const edge = bad ? '#a30000' : '#555';
+        const bh3D = Math.min(b.phIn*SCALE, shelfData.uh*SCALE);
+        const centerAlongIn = b.alongIn + b.pwIn/2, centerAcrossIn = b.acrossIn + b.pdIn/2;
+        const pxIn = runStartXIn + ux*centerAlongIn + nx*centerAcrossIn;
+        const pzIn = runStartZIn + uz*centerAlongIn + nz*centerAcrossIn;
+        const by = shelfBaseY + boardHeight3D + lipIn*SCALE;
+        if (b.prod.shape === 'cylinder') {
+          const radius = Math.max(0, Math.min(b.pwIn, b.pdIn)/2*SCALE - 0.1*SCALE);
+          drawCylinder(pxIn*SCALE, by, pzIn*SCALE, radius, bh3D, color, edge);
+        } else {
+          drawOrientedBox(pxIn*SCALE, pzIn*SCALE, heading, b.pwIn*SCALE*0.92, b.pdIn*SCALE, by, bh3D, color, edge);
+        }
+      });
+
+      floorClearIn += shelfData.rawH;
+    });
+  });
+
+  const warnEl = document.getElementById('overlap-warning');
+  if (warnEl) warnEl.classList.toggle('show', anyBad);
+
+  if (doorGapCenterPt) {
+    ctx.save();
+    ctx.font = `bold ${Math.max(10, canvas.width * 0.014)}px 'Space Mono', monospace`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#3a6b3c'; ctx.globalAlpha = 0.85;
+    ctx.fillText('▼ DOOR', doorGapCenterPt.sx, Math.min(canvas.height - 8, doorGapCenterPt.sy + 22));
+    ctx.restore();
+  }
+}
+</script>
+
+<script>
+/* ── Resize canvas on window resize ──────────── */
+window.addEventListener('resize', () => {
+  if (canvas && lastShelfResults.length) {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = Math.min(420, Math.round(canvas.offsetWidth * 0.55));
+    drawPantry();
+  }
+});
+
+init();
+</script>
+</body>
+</html>
