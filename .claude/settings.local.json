@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git --version)"
+      "Bash(git --version)",
+      "mcp__mcp-registry__search_mcp_registry"
     ]
   }
 }
