@@ -485,32 +485,35 @@ const CATEGORIES = [
   { slug:'shelf_risers',         label:'Shelf Risers' },
 ];
 
+const ASSOCIATE_TAG = 'pantryorgan0a-20';
+function amazonUrl(asin) { return `https://www.amazon.com/dp/${asin}?tag=${ASSOCIATE_TAG}`; }
+
 const PRODUCTS = [
-  {id:'001',name:'Clear Stackable Bin - Small',      category:'clear_plastic_bins',   price:8.99,  color:'#cce8ff', dimensions:{width:6,   depth:8,   height:4  }, description:'Small clear stackable bin for snacks, spices, or packets.'},
-  {id:'002',name:'Clear Stackable Bin - Medium',     category:'clear_plastic_bins',   price:12.99, color:'#b0d8ff', dimensions:{width:9,   depth:12,  height:5  }, description:'Medium clear bin for canned goods, pasta, or snack bags.'},
-  {id:'003',name:'Clear Stackable Bin - Large',      category:'clear_plastic_bins',   price:16.99, color:'#90c4ff', dimensions:{width:12,  depth:16,  height:6  }, description:'Large clear bin for cereal boxes or baking supplies.'},
-  {id:'004',name:'Open-Front Bin - Small',           category:'open_front_bins',      price:7.49,  color:'#ffd6b0', dimensions:{width:6.5, depth:9,   height:5  }, description:'Open-front bin for easy grab access.'},
-  {id:'005',name:'Open-Front Bin - Medium',          category:'open_front_bins',      price:10.49, color:'#ffc090', dimensions:{width:10,  depth:13,  height:6.5}, description:'Medium open-front bin with label slot.'},
-  {id:'006',name:'Open-Front Bin - Large',           category:'open_front_bins',      price:14.99, color:'#ffaa70', dimensions:{width:14,  depth:16,  height:8  }, description:'Large open-front bin for tall bottles or bulk items.'},
-  {id:'007',name:'Deep Shelf Storage Bin',           category:'deep_shelf_bins',      price:18.99, color:'#d4e8c2', dimensions:{width:11,  depth:20,  height:7  }, description:'Extra deep bin for deep pantry shelves.'},
-  {id:'008',name:'Pull-Out Deep Cabinet Organizer',  category:'deep_shelf_bins',      price:24.99, color:'#b8d8a0', dimensions:{width:13,  depth:22,  height:5.5}, description:'Sliding pull-out organizer for deep shelves.'},
-  {id:'009',name:'Woven Seagrass Basket - Small',    category:'wire_natural_baskets', price:14.99, color:'#e8d4a0', dimensions:{width:8,   depth:10,  height:5  }, description:'Natural seagrass woven basket, stylish and functional.'},
-  {id:'010',name:'Woven Seagrass Basket - Large',    category:'wire_natural_baskets', price:22.99, color:'#d8c080', dimensions:{width:13,  depth:17,  height:7  }, description:'Large natural basket for bread, produce, or snacks.'},
-  {id:'011',name:'Wire Mesh Basket - Medium',        category:'wire_natural_baskets', price:16.49, color:'#c8d4c8', dimensions:{width:10,  depth:14,  height:6  }, description:'Metal wire basket with ventilation for produce.'},
-  {id:'012',name:'Lazy Susan - 10 inch',             category:'turntables',           price:11.99, color:'#f0e0f0', shape:'cylinder', dimensions:{width:10,  depth:10,  height:2  }, description:'10-inch spinning turntable for spices or oils.'},
-  {id:'013',name:'Lazy Susan - 12 inch',             category:'turntables',           price:14.99, color:'#e0c8e8', shape:'cylinder', dimensions:{width:12,  depth:12,  height:2.5}, description:'12-inch turntable with raised edge.'},
-  {id:'014',name:'Two-Tier Lazy Susan - 12 inch',    category:'turntables',           price:21.99, color:'#d0b0e0', shape:'cylinder', dimensions:{width:12,  depth:12,  height:9.5}, description:'Two-tier spinning organizer for spices.'},
-  {id:'015',name:'Can Riser - 2 Tier',               category:'can_risers',           price:13.49, color:'#ffe0c0', dimensions:{width:14,  depth:10,  height:6.5}, description:'2-tier stepped riser for canned goods.'},
-  {id:'016',name:'Can Riser - 3 Tier',               category:'can_risers',           price:17.99, color:'#ffd0a0', dimensions:{width:14,  depth:13.5,height:8  }, description:'3-tier riser, maximizes vertical space.'},
-  {id:'017',name:'Grain Dispenser - 3.4L',           category:'grain_dispensers',     price:15.99, color:'#e0f0e0', shape:'cylinder', dimensions:{width:4.5, depth:4.5, height:10.5}, description:'Airtight dispenser for cereal, rice, or oats.'},
-  {id:'018',name:'Grain Dispenser - 5.5L',           category:'grain_dispensers',     price:21.49, color:'#c8e8c8', shape:'cylinder', dimensions:{width:5.5, depth:5.5, height:13  }, description:'Large airtight dispenser for bulk grains or flour.'},
-  {id:'019',name:'Pop-Lid Container - 1.3L',         category:'pop_lid_containers',   price:9.99,  color:'#ffeedd', shape:'cylinder', dimensions:{width:4,   depth:4,   height:6.5 }, description:'Airtight pop-top container for sugar or spices.'},
-  {id:'020',name:'Pop-Lid Container - 2.5L',         category:'pop_lid_containers',   price:13.99, color:'#ffddc8', shape:'cylinder', dimensions:{width:5,   depth:5,   height:9   }, description:'Medium airtight container for flour or rice.'},
-  {id:'021',name:'Pop-Lid Container - 4.2L',         category:'pop_lid_containers',   price:17.99, color:'#ffcdb0', shape:'cylinder', dimensions:{width:6,   depth:6,   height:11  }, description:'Large pop-lid container for bulk flour or coffee.'},
-  {id:'022',name:'Drawer Organizer - Small',         category:'drawer_organizers',    price:8.99,  color:'#e8e8f8', dimensions:{width:5.5, depth:10,  height:2.5 }, description:'Slim drawer organizer for packets and seasoning.'},
-  {id:'023',name:'Expandable Drawer Organizer',      category:'drawer_organizers',    price:19.99, color:'#d8d8f0', dimensions:{width:17.5,depth:12,  height:2.5 }, description:'Adjustable organizer tray, 10" to 17.5" wide.'},
-  {id:'024',name:'Wire Shelf Riser',                 category:'shelf_risers',         price:22.49, color:'#e0e8d8', dimensions:{width:15,  depth:10,  height:6   }, description:'Wire shelf riser creates an extra storage level.'},
-  {id:'025',name:'Bamboo Shelf Riser - Wide',        category:'shelf_risers',         price:27.99, color:'#d4c8a8', dimensions:{width:18,  depth:11,  height:5.5 }, description:'Solid bamboo riser for two levels of storage.'},
+  {id:'001',name:'Clear Stackable Bin - Small',      category:'clear_plastic_bins',   price:8.99,  asin:'B08L566QSF', color:'#cce8ff', dimensions:{width:6,   depth:8,   height:4  }, description:'Small clear stackable bin for snacks, spices, or packets.'},
+  {id:'002',name:'Clear Stackable Bin - Medium',     category:'clear_plastic_bins',   price:12.99, asin:'B08L558KX9', color:'#b0d8ff', dimensions:{width:9,   depth:12,  height:5  }, description:'Medium clear bin for canned goods, pasta, or snack bags.'},
+  {id:'003',name:'Clear Stackable Bin - Large',      category:'clear_plastic_bins',   price:16.99, asin:'B08R9P9CJL', color:'#90c4ff', dimensions:{width:12,  depth:16,  height:6  }, description:'Large clear bin for cereal boxes or baking supplies.'},
+  {id:'004',name:'Open-Front Bin - Small',           category:'open_front_bins',      price:7.49,  asin:'B0B5DH8499', color:'#ffd6b0', dimensions:{width:6.5, depth:9,   height:5  }, description:'Open-front bin for easy grab access.'},
+  {id:'005',name:'Open-Front Bin - Medium',          category:'open_front_bins',      price:10.49, asin:'B09R2M2XBT', color:'#ffc090', dimensions:{width:10,  depth:13,  height:6.5}, description:'Medium open-front bin with label slot.'},
+  {id:'006',name:'Open-Front Bin - Large',           category:'open_front_bins',      price:14.99, asin:'B09ND1631K', color:'#ffaa70', dimensions:{width:14,  depth:16,  height:8  }, description:'Large open-front bin for tall bottles or bulk items.'},
+  {id:'007',name:'Deep Shelf Storage Bin',           category:'deep_shelf_bins',      price:18.99, asin:'B0BGDXC5TP', color:'#d4e8c2', dimensions:{width:11,  depth:20,  height:7  }, description:'Extra deep bin for deep pantry shelves.'},
+  {id:'008',name:'Pull-Out Deep Cabinet Organizer',  category:'deep_shelf_bins',      price:24.99, asin:'B0CD7X7MQ3', color:'#b8d8a0', dimensions:{width:13,  depth:22,  height:5.5}, description:'Sliding pull-out organizer for deep shelves.'},
+  {id:'009',name:'Woven Seagrass Basket - Small',    category:'wire_natural_baskets', price:14.99, asin:'B06ZYCPC36', color:'#e8d4a0', dimensions:{width:8,   depth:10,  height:5  }, description:'Natural seagrass woven basket, stylish and functional.'},
+  {id:'010',name:'Woven Seagrass Basket - Large',    category:'wire_natural_baskets', price:22.99, asin:'B01I5QNZZM', color:'#d8c080', dimensions:{width:13,  depth:17,  height:7  }, description:'Large natural basket for bread, produce, or snacks.'},
+  {id:'011',name:'Wire Mesh Basket - Medium',        category:'wire_natural_baskets', price:16.49, asin:'B077SPJ5L9', color:'#c8d4c8', dimensions:{width:10,  depth:14,  height:6  }, description:'Metal wire basket with ventilation for produce.'},
+  {id:'012',name:'Lazy Susan - 10 inch',             category:'turntables',           price:11.99, asin:'B089QHKWB1', color:'#f0e0f0', shape:'cylinder', dimensions:{width:10,  depth:10,  height:2  }, description:'10-inch spinning turntable for spices or oils.'},
+  {id:'013',name:'Lazy Susan - 12 inch',             category:'turntables',           price:14.99, asin:'B07ZHPKS33', color:'#e0c8e8', shape:'cylinder', dimensions:{width:12,  depth:12,  height:2.5}, description:'12-inch turntable with raised edge.'},
+  {id:'014',name:'Two-Tier Lazy Susan - 12 inch',    category:'turntables',           price:21.99, asin:'B0GF2BL8SN', color:'#d0b0e0', shape:'cylinder', dimensions:{width:12,  depth:12,  height:9.5}, description:'Two-tier spinning organizer for spices.'},
+  {id:'015',name:'Can Riser - 2 Tier',               category:'can_risers',           price:13.49, asin:'B09WR2YR3P', color:'#ffe0c0', dimensions:{width:14,  depth:10,  height:6.5}, description:'2-tier stepped riser for canned goods.'},
+  {id:'016',name:'Can Riser - 3 Tier',               category:'can_risers',           price:17.99, asin:'B01IIXR2II', color:'#ffd0a0', dimensions:{width:14,  depth:13.5,height:8  }, description:'3-tier riser, maximizes vertical space.'},
+  {id:'017',name:'Grain Dispenser - 3.4L',           category:'grain_dispensers',     price:15.99, asin:'B09YQYVYQG', color:'#e0f0e0', shape:'cylinder', dimensions:{width:4.5, depth:4.5, height:10.5}, description:'Airtight dispenser for cereal, rice, or oats.'},
+  {id:'018',name:'Grain Dispenser - 5.5L',           category:'grain_dispensers',     price:21.49, asin:'B07PF8NV7N', color:'#c8e8c8', shape:'cylinder', dimensions:{width:5.5, depth:5.5, height:13  }, description:'Large airtight dispenser for bulk grains or flour.'},
+  {id:'019',name:'Pop-Lid Container - 1.3L',         category:'pop_lid_containers',   price:9.99,  asin:'B08PSK57LV', color:'#ffeedd', shape:'cylinder', dimensions:{width:4,   depth:4,   height:6.5 }, description:'Airtight pop-top container for sugar or spices.'},
+  {id:'020',name:'Pop-Lid Container - 2.5L',         category:'pop_lid_containers',   price:13.99, asin:'B000VJ08SY', color:'#ffddc8', shape:'cylinder', dimensions:{width:5,   depth:5,   height:9   }, description:'Medium airtight container for flour or rice.'},
+  {id:'021',name:'Pop-Lid Container - 4.2L',         category:'pop_lid_containers',   price:17.99, asin:'B08PSVJRP4', color:'#ffcdb0', shape:'cylinder', dimensions:{width:6,   depth:6,   height:11  }, description:'Large pop-lid container for bulk flour or coffee.'},
+  {id:'022',name:'Drawer Organizer - Small',         category:'drawer_organizers',    price:8.99,  asin:'B07RD2683S', color:'#e8e8f8', dimensions:{width:5.5, depth:10,  height:2.5 }, description:'Slim drawer organizer for packets and seasoning.'},
+  {id:'023',name:'Expandable Drawer Organizer',      category:'drawer_organizers',    price:19.99, asin:'B005XK3R02', color:'#d8d8f0', dimensions:{width:17.5,depth:12,  height:2.5 }, description:'Adjustable organizer tray, 10" to 17.5" wide.'},
+  {id:'024',name:'Wire Shelf Riser',                 category:'shelf_risers',         price:22.49, asin:'B0CCGC1JFR', color:'#e0e8d8', dimensions:{width:15,  depth:10,  height:6   }, description:'Wire shelf riser creates an extra storage level.'},
+  {id:'025',name:'Bamboo Shelf Riser - Wide',        category:'shelf_risers',         price:27.99, asin:'B0CBND3XLM', color:'#d4c8a8', dimensions:{width:18,  depth:11,  height:5.5 }, description:'Solid bamboo riser for two levels of storage.'},
 ];
 </script>
 
@@ -945,7 +948,7 @@ function addToShoppingList(shelfIdx, productId) {
   if (existing) {
     existing.qty += qty;
   } else {
-    shoppingList.push({ id: productId, name: prod.name, price: prod.price, qty, shelfNumber: shelfIdx+1 });
+    shoppingList.push({ id: productId, name: prod.name, price: prod.price, asin: prod.asin, qty, shelfNumber: shelfIdx+1 });
   }
   localStorage.setItem('pantryShoppingList', JSON.stringify(shoppingList));
   renderShoppingList();
@@ -985,7 +988,7 @@ function renderShoppingList() {
       <span class="sl-name">${item.name} <span class="sl-shelf">Shelf ${item.shelfNumber}</span></span>
       <span class="sl-qty">×${item.qty}</span>
       <span class="sl-price">$${(item.price * item.qty).toFixed(2)}</span>
-      <a class="sl-link" href="https://www.amazon.com" target="_blank" rel="noopener noreferrer">Shop →</a>
+      <a class="sl-link" href="${item.asin ? amazonUrl(item.asin) : 'https://www.amazon.com'}" target="_blank" rel="noopener noreferrer sponsored">Shop →</a>
       <button class="sl-remove" onclick="removeFromShoppingList(${i})">✕</button>
     </div>`).join('') + `
     <div class="sl-total">
